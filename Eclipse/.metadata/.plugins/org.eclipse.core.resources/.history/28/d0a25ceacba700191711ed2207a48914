@@ -1,0 +1,6 @@
+button{
+	cursor: pointer;
+	background-color: #3A4154;
+	color: white;
+	font-weight: bold;
+}

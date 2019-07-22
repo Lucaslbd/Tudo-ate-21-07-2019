@@ -1,0 +1,12 @@
+function pesquisar(){
+	var form = document.getElementById("pesquisar");
+	form.submit();
+}
+
+function focar(){
+	var inp = document.getElementById("pesq");
+	inp.focus();
+	var tamanho = inp.value.length;
+	inp.setSelectionRange(tamanho, tamanho);
+}
+

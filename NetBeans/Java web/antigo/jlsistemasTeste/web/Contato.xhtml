@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloMaster.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBContato.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBContato.lista}" filteredValue="#{MBContato.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Pedidos de contato"/>
+                </f:facet>  
+                <p:column headerText="Nome do cliente">
+                    <h:outputText value="#{item.nome}"/>
+                </p:column>               
+                <p:column headerText="Email">
+                    <h:outputText value="#{item.email}"/>
+                </p:column>               
+                <p:column headerText="Telefone">
+                    <h:outputText value="#{item.fone}"/>                  
+                </p:column>
+                <p:column headerText="Data do pedido">
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Situação" filterBy="#{item.situacao}" filterStyle="width:80%">
+                    <h:outputText value="#{item.situacao}"/>
+                </p:column>                 
+                <p:column headerText="Opções">
+                    <p:commandButton icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover pedido de contato" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBContato.contato}" value="#{item}"/>
+                    </p:commandButton>   
+                    <p:commandButton icon="ui-icon-check" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar situação do contato" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBContato.contato}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-mail-open" id="btMensagem" oncomplete="PF('dlgMensagem').show();" update=":frmMensagem" title="Ver motivo do contato" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBContato.contato}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btMensagem :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+        </h:form>      
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgMensagem" closable="true" draggable="false" resizable="false" header="Motivo do contato" modal="true" appendTo="@(body)">
+            <h:form id="frmMensagem">
+                <h:outputText value="#{MBContato.contato.motivo}"/>       
+            </h:form>           
+        </p:dialog>
+        <!--Final formulario mensagem-->
+
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de contato" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Nome:"/>
+                    <h:outputText value="#{MBContato.contato.nome}" /> 
+                    <h:outputText value="Situação:"/>
+                    <h:outputText value="#{MBContato.contato.situacao}" /> 
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBContato.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir-->  
+
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alterar situação de contato" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <h:outputText value="Nome:"/>
+                    <h:outputText value="#{MBContato.contato.nome}" /> 
+                    <h:outputText value="Situação:"/>
+                    <h:outputText value="#{MBContato.contato.situacao}" /> 
+                </h:panelGrid>  
+                <center>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Alterar" title="Confirmar alterações" id="editar" actionListener="#{MBContato.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid>
+                </center>
+            </h:form>
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>     
+    </ui:define>
+</ui:composition>
+

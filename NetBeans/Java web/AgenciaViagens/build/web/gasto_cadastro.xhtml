@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBGastos.acao}"/>  
+            <f:viewParam name="codigo" value="#{MBGastos.codigo}"/>  
+            <f:event listener="#{MBGastos.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo">  
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Cadastro de gastos"/>
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">            
+            <p:panelGrid columns="1" style="padding: 30px; margin: 20px">
+                <h:panelGrid columns="2">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Descrição"/>
+                        <p:inputText value="#{MBGastos.gastos.descricao}" size="40" maxlength="60" required="true" requiredMessage="Preencha o campo descrição" autocomplete="off" placeholder="Descrição"/>
+                    </h:panelGrid>                                       
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Data"/>
+                        <p:calendar value="#{MBGastos.gastos.data}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data" placeholder="Data"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Valor"/>
+                        <p:inputText value="#{MBGastos.gastos.valor}" size="40" maxlength="6" required="true" requiredMessage="Preencha o campo valor" autocomplete="off" placeholder="Valor" converterMessage="O campo valor somente aceita numeros" validatorMessage="O campo valor não aceita valores menores que 0">
+                            <f:validateDoubleRange minimum="0"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>                             
+                    <p:outputLabel value=""/>
+                    <h:panelGrid columns="5" style="margin-top: 10px">
+                        <p:commandButton value="Salvar" id="salvar" icon="ui-icon-plusthick" actionListener="#{MBGastos.salvar()}" update=":msgGlobal" rendered="#{MBGastos.acao == 1}"/>
+                        <p:commandButton value="Alterar" icon="ui-icon-pencil" actionListener="#{MBGastos.alterar()}" update=":msgGlobal" rendered="#{MBGastos.acao == 3}"/>
+                        <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" outcome="gastos.xhtml"/>
+                    </h:panelGrid>
+                </h:panelGrid>
+            </p:panelGrid>
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI>             
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

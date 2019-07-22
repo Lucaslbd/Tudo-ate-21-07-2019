@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Voucher" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="00c5764e-a8c9-4948-a06f-b334baf244d3">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="passeio" class="java.lang.String"/>
+	<field name="data" class="java.lang.String"/>
+	<field name="passageiro" class="java.lang.String"/>
+	<field name="empresa" class="java.lang.String"/>
+	<field name="cnpj" class="java.lang.String"/>
+	<field name="telefone" class="java.lang.String"/>
+	<field name="texto" class="java.lang.String"/>
+	<field name="atividades" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="100" splitType="Stretch">
+			<staticText>
+				<reportElement x="20" y="0" width="525" height="40" uuid="f371e0c3-29cb-4815-be2d-c5fb7eccb960"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Voucher]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="20" y="40" width="525" height="20" uuid="6c70e1c1-c3aa-45a5-936a-d9e9916d2dd7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empresa}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="60" width="525" height="30" uuid="c004d126-a139-40bc-aa5e-337cdb95c6bf"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{cnpj}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="495" splitType="Stretch">
+			<textField>
+				<reportElement x="110" y="40" width="430" height="20" uuid="3570e4b0-ea26-4241-8bee-02ab4b40e7c2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{passeio}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="40" width="100" height="20" uuid="96730a6d-afa0-46ac-8995-681d422f8dc2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Nome da viagem:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="70" width="440" height="20" uuid="1067d5f5-f074-4945-a525-fc70d1becb42"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{data}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="70" width="90" height="20" uuid="1727110f-d76d-4727-a1b6-db91a8e7af2c"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Data da viagem:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="10" width="445" height="20" uuid="fe3d2914-133b-497b-8d84-76e2b920e569"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{passageiro}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="10" width="90" height="20" uuid="08ed571f-a00c-4ca0-b46d-c65b7525d14c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Nome do titular:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="3" y="0" width="550" height="1" uuid="7f1cc18f-7d8c-46e4-8139-03d4da5bd0f1"/>
+			</line>
+			<line>
+				<reportElement x="3" y="138" width="550" height="1" uuid="333cc9e6-d44e-4f7f-8a7a-51e6d4635735"/>
+			</line>
+			<line>
+				<reportElement x="30" y="440" width="210" height="1" uuid="fa679296-9ebb-4f78-bfd8-9e0ec9cd0c1e"/>
+			</line>
+			<staticText>
+				<reportElement x="30" y="440" width="210" height="20" uuid="4fdfd419-bbd5-46e7-ad24-60e3e3969e36"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Cordenador(a) da empresa]]></text>
+			</staticText>
+			<line>
+				<reportElement x="290" y="440" width="220" height="1" uuid="77d62183-3af9-4c1a-a431-d4cba38da708"/>
+			</line>
+			<staticText>
+				<reportElement x="290" y="443" width="220" height="15" uuid="3f85d28a-b946-4a54-a56d-4658b28bbe5a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Carimbo da empresa]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="135" y="101" width="310" height="19" uuid="260f0cca-237b-4216-853f-aeec731c590e"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{telefone}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="11" y="101" width="129" height="18" uuid="6f6ea5ce-06f5-4e49-bc2a-38dfe043a2c3"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Telefone para contato:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="11" y="260" width="535" height="80" uuid="004f65be-326c-4ea9-a9cc-f5e1470f2eb8"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{texto}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="1" y="250" width="550" height="1" uuid="aca531ee-f29a-4e02-902d-68bdee895a67"/>
+			</line>
+			<textField>
+				<reportElement x="10" y="175" width="534" height="65" uuid="eae9e3ed-5628-45d6-9c42-962afadbda2f"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{atividades}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="140" width="530" height="30" uuid="5d64fac0-79c8-4fb8-bfe5-fb715e413325"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Atividades previstas]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

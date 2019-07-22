@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBVenda.acao}"/>  
+            <f:viewParam name="codigo" value="#{MBVenda.codigo}"/>  
+            <f:event listener="#{MBVenda.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo">  
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Registrar nova venda" rendered="#{MBVenda.acao == 1}"/>
+                <p:outputLabel value="Alterar venda" rendered="#{MBVenda.acao == 3}"/>              
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">            
+            <p:panelGrid columns="1" style="padding: 30px; margin-left: 20px; margin-right: 20px; float: left">  
+                <h:panelGrid columns="4">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Cliente"/>
+                        <p:selectOneMenu value="#{MBVenda.venda.cliente}" filter="true" required="true" requiredMessage="Selecione um cliente" converter="clienteConverter">
+                            <f:selectItem itemLabel="Selecione um cliente" itemValue="#{null}"/>
+                            <f:selectItems value="#{MBVenda.listaCliente}" var="cliente" itemValue="#{cliente}" itemLabel="#{cliente.nome}"/>                    
+                        </p:selectOneMenu>                          
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Fornecedor"/>
+                        <p:selectOneMenu value="#{MBVenda.venda.fornecedor}" filter="true" required="true" requiredMessage="Selecione um fornecedor" converter="fornecedorConverter">
+                            <f:selectItem itemLabel="Selecione um fornecedor" itemValue="#{null}"/>
+                            <f:selectItems value="#{MBVenda.listaFornecedor}" var="fornecedor" itemValue="#{fornecedor}" itemLabel="#{fornecedor.nome}"/>                    
+                        </p:selectOneMenu>                          
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Vendedor"/>
+                        <p:selectOneMenu value="#{MBVenda.venda.funcionario}" filter="true" required="true" requiredMessage="Selecione um funcionário" converter="funcionarioConverter">
+                            <f:selectItem itemLabel="Selecione um vendedor" itemValue="#{null}"/>
+                            <f:selectItems value="#{MBVenda.listaFuncionario}" var="funcionario" itemValue="#{funcionario}" itemLabel="#{funcionario.nome}"/>                    
+                        </p:selectOneMenu><p:inputText value="#{MBVenda.venda.funcionario.nome}" size="35" rendered="#{MBVenda.acao == 2}"  readonly="#{true}"/>  
+                    </h:panelGrid>                    
+                </h:panelGrid>
+                <h:panelGrid columns="3">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Descrição"/>
+                        <p:inputText value="#{MBVenda.venda.descricao}" size="40" maxlength="60" placeholder="Descrição da venda" required="true" requiredMessage="Preencha o campo descrição" autocomplete="off"/>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Referência/Localizador"/>
+                        <p:inputText value="#{MBVenda.venda.referencia}" size="20" maxlength="20" placeholder="Referência da venda" required="true" requiredMessage="Preencha o campo referência" autocomplete="off"/>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" rendered="#{MBVenda.acao != 1}">                        
+                        <p:outputLabel value="Status"/>
+                        <p:selectOneMenu value="#{MBVenda.venda.status}" required="true" requiredMessage="Selecione um status" rendered="#{MBVenda.acao == 3}">
+                            <f:selectItem itemLabel="A receber" itemValue="A receber"/>   
+                            <f:selectItem itemLabel="Recebido" itemValue="Recebido"/>                              
+                        </p:selectOneMenu>                         
+                    </h:panelGrid>
+                </h:panelGrid>
+                <h:panelGrid columns="4">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Data da venda" rendered="#{MBVenda.acao != 1}"/>
+                        <p:calendar value="#{MBVenda.venda.dataVenda}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data da venda" rendered="#{MBVenda.acao == 3}" placeholder="Data da venda" />
+                    </h:panelGrid>                    
+                    <h:panelGrid columns="1" rendered="#{MBVenda.acao == 3}">
+                        <p:outputLabel value="Data a receber"/>
+                        <p:calendar value="#{MBVenda.venda.dataReceber}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data a receber" placeholder="Data da venda" />
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Data do checkin"/>
+                        <p:calendar value="#{MBVenda.venda.dataCheckin}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data da evento" placeholder="Data do evento" />
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Hora do checkin"/>
+                        <p:inputMask value="#{MBVenda.venda.horaCheckin}" mask="99:99" placeholder="Hora do checkin" required="true" requiredMessage="Preencha o campo hora do checkin" autocomplete="off"/>  
+                    </h:panelGrid>
+                </h:panelGrid>
+                <h:panelGrid columns="4">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Valor sem taxas"/>
+                        <p:inputText value="#{MBVenda.venda.valorPacote}" size="20" maxlength="5" required="true" requiredMessage="Preencha o campo valor da venda" autocomplete="off" placeholder="Valor da venda" converterMessage="O campo valor da venda somente aceita numeros" validatorMessage="O campo valor da venda não aceita valores menores que 0.00">
+                            <f:convertNumber pattern="0.00"/>
+                            <f:validateDoubleRange minimum="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Taxas"/>
+                        <p:inputText value="#{MBVenda.venda.taxas}" size="20" maxlength="5" required="true" requiredMessage="Preencha o campo taxas" autocomplete="off" placeholder="Taxas" converterMessage="O campo taxas somente aceita numeros" validatorMessage="O campo taxas não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" rendered="#{MBVenda.acao != 1}">
+                        <p:outputLabel value="Comissão da agência"/>
+                        <p:inputText value="#{MBVenda.venda.valorReceber}" size="20" maxlength="5" required="true" requiredMessage="Preencha o campo comissão da agência" autocomplete="off" placeholder="Comissão da agência" converterMessage="O campo comissão da agência somente aceita numeros" validatorMessage="O campo comissão da agência não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" rendered="#{MBVenda.acao != 1}">
+                        <p:outputLabel value="Comissão do funcionário"/>
+                        <p:inputText value="#{MBVenda.venda.comissaoFunc}" size="20" maxlength="5" required="true" requiredMessage="Preencha o campo comissão do funcionário" autocomplete="off" placeholder="Comissão do funcionário" converterMessage="O campo comissão do funcionário somente aceita numeros" validatorMessage="O campo comissão do funcionário não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                </h:panelGrid>
+                <h:panelGrid columns="5" style="margin-top: 10px">
+                    <p:commandButton value="Salvar" id="salvar" icon="ui-icon-check" actionListener="#{MBVenda.salvar()}" update=":msgGlobal" rendered="#{MBVenda.acao == 1}"/>
+                    <p:commandButton value="Alterar" icon="ui-icon-pencil" actionListener="#{MBVenda.alterar()}" update=":msgGlobal" rendered="#{MBVenda.acao == 3}"/>
+                    <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" outcome="venda.xhtml"/>
+                </h:panelGrid>                
+            </p:panelGrid> 
+
+            <p:panelGrid columns="1" style="padding: 30px; float: left; text-align: center;" id="calcular">
+                <h:panelGrid columns="5">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Valor da venda"/>
+                        <p:outputLabel value="#{MBVenda.total}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="|"/>
+                        <p:outputLabel value="%"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="%/agência"/>
+                        <p:outputLabel value="#{MBVenda.porFornecedor}">
+                            <f:convertNumber pattern="0.0" />
+                        </p:outputLabel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="|"/>
+                        <p:outputLabel value="="/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Comissão da agência"/>
+                        <p:outputLabel value="#{MBVenda.comissao}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                </h:panelGrid>
+                <h:panelGrid columns="5">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Valor da venda"/>
+                        <p:outputLabel value="#{MBVenda.total}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="|"/>
+                        <p:outputLabel value="%"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="%/vendedor"/>
+                        <p:outputLabel value="#{MBVenda.porFunc}">
+                            <f:convertNumber pattern="0.0" />
+                        </p:outputLabel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="|"/>
+                        <p:outputLabel value="="/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Comissão do vendedor"/>
+                        <p:outputLabel value="#{MBVenda.comissaoFunc}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                </h:panelGrid>
+                <h:panelGrid columns="5">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Comissão da agência"/>
+                        <p:outputLabel value="#{MBVenda.comissao}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="|"/>
+                        <p:outputLabel value="-"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Comissão do vendedor"/>
+                        <p:outputLabel value="#{MBVenda.comissaoFunc}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="|"/>
+                        <p:outputLabel value="="/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Lucro"/>
+                        <p:outputLabel value="#{MBVenda.comissao - MBVenda.comissaoFunc}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </p:outputLabel>
+                    </h:panelGrid>
+                </h:panelGrid>
+                <p:commandButton value="Calcular lucro" id="cal" actionListener="#{MBVenda.calcular()}" icon="ui-icon-calculator" update="calcular :msgGlobal" rendered="#{MBVenda.acao == 1}"/>
+            </p:panelGrid>
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar :frmCadastro:cal">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

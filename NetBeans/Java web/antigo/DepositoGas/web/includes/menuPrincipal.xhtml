@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+    <h:form id="menuPrincipal">
+        <p:menubar id="painelPrincipal">
+            <p:submenu label="Arquivo">                
+                <p:menuitem value="Sair" action="#{MBAutenticacao.sair()}"/>   
+                <p:menuitem  value="Tela principal" outcome="Principal.xhtml"/>                  
+            </p:submenu>           
+            <p:submenu label="Cadastros">                
+                <p:menuitem value="Usuários" outcome="Usuario.xhtml"/>
+                <p:menuitem value="Clientes" outcome="Cliente.xhtml"/>  
+                <p:menuitem value="Fornecedores" outcome="Fornecedor.xhtml"/>  
+                <p:menuitem value="Produtos" outcome="Produto.xhtml"/>  
+                <p:menuitem value="Funcionários" outcome="Funcionario.xhtml"/>  
+                <p:menuitem value="Veiculos para entrega" outcome="Veiculo.xhtml"/>               
+                <p:menuitem value="Formas de pagamento" outcome="FormasPagamento.xhtml"/>                 
+            </p:submenu> 
+            <p:submenu label="Operações">                
+                <p:menuitem value="Chegada de mercadoria" outcome="ChegadaMercadoria.xhtml"/>              
+            </p:submenu>
+            <p:submenu label="Vendas">                
+                <p:menuitem value="Frente caixa" outcome="FrenteCaixa.xhtml"/>   
+                <p:menuitem value="Fechamento de caixa" outcome="FechamentoCaixa.xhtml"/>  
+            </p:submenu>
+            <p:submenu label="Despesas">                
+                <p:menuitem value="Veiculos" outcome="Gasto_veiculo.xhtml"/>   
+                <p:menuitem value="Pagamento funcionários" outcome="GastoFuncionario.xhtml"/>
+                <p:menuitem value="Baixa de mercadoria" outcome="Baixa.xhtml"/> 
+                <p:menuitem value="Gastos eventuais" outcome="GastosEventuais.xhtml"/>
+            </p:submenu>
+            <p:submenu label="Consultas">                
+                <p:menuitem value="Vendas" outcome="ConsultaVenda.xhtml"/>                   
+                <p:menuitem value="Crédiario" outcome="Crediario.xhtml"/>
+                <p:menuitem value="Cartões" outcome="Cartao.xhtml"/>
+                <p:menuitem value="Historico do cliente" outcome="HistoricoCliente.xhtml"/>               
+                <p:menuitem value="Despesas" outcome="Gastos.xhtml"/>                
+                <p:menuitem value="Controle de notas" outcome="ControleNota.xhtml"/>
+                <p:menuitem value="Desempenho dos veiculos" outcome="Autonomia.xhtml"/>
+            </p:submenu>
+            <p:submenu label="Mais">
+                <p:menuitem value="Imprimir mensalidade" outcome="Boleto.xhtml"/>
+                <p:menuitem value="Deixe aqui sua opnião" outcome="Opniao.xhtml"/>
+            </p:submenu>
+        </p:menubar>
+    </h:form>  
+</ui:composition>

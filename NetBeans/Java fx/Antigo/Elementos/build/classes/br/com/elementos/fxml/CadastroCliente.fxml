@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="769.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.elementos.controller.CadastroClienteController">
+    <stylesheets>
+        <URL value="@/br/com/elementos/css/cadastrocliente.css" />
+    </stylesheets>
+   <children>
+      <TableView fx:id="tabela" layoutX="9.0" layoutY="56.0" onMouseClicked="#pegarObj" prefHeight="338.0" prefWidth="754.0">
+        <columns>
+          <TableColumn fx:id="colunaNome" prefWidth="227.0" text="Nome" />
+          <TableColumn fx:id="colunaEstado" prefWidth="75.0" text="Estado" />
+            <TableColumn fx:id="colunaCidade" prefWidth="237.0" text="Cidade" />
+            <TableColumn fx:id="colunaBairro" prefWidth="214.0" text="Bairro" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>

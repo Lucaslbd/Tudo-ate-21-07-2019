@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">    
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <center> <h:form id="formPesquisa">
+                <h:panelGrid id="pnlPesquisa" columns="5">
+                    <p:focus context="formPesquisa"/>
+                    <h:outputText value="codigo:"/>
+                    <p:inputText value="#{MBProduto.codigo}" autocomplete="off"/>                                                                 
+                    <p:commandButton id="pesq" value="Pesquisar" actionListener="#{MBProduto.listarporcodigo2()}"  update=":frmTabela:tabela :formPesquisa :msgGlobal"/>                       
+                </h:panelGrid>                
+            </h:form></center>
+        <p:separator/>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBProduto.listaProduto}" filteredValue="#{MBProduto.listaProdutoFiltrados}"  var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado" >                
+                <f:facet name="header">
+                    <h:outputText value="Listagem de produtos"/>
+                </f:facet>            
+                <p:column headerText="Codigo">                    
+                    <h:outputText value="#{item.codigo}"/>
+                </p:column>
+                <p:column headerText="Descrição">                       
+                    <h:outputText value="#{item.descricao}"/>                   
+                </p:column>
+                <p:column headerText="Valor" width="10%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.preco}">
+                        <f:convertNumber pattern="0.00"/>                        
+                    </h:outputText>
+                    <f:facet name="footer">                        
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBProduto.valor}">
+                            <f:convertNumber pattern="0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>
+                <p:column headerText="Estoque" width="10%">
+                    <h:outputText value="#{item.estoque}"/>
+                    <f:facet name="footer">                        
+                        <p:outputLabel value="Total "/>
+                        <h:outputText value="#{MBProduto.quantidade}"/>                                                  
+                    </f:facet>
+                </p:column>
+                <p:column headerText="Fabricante">                     
+                    <h:outputText value="#{item.fabricante.nome}"/>
+                </p:column>
+                <p:column headerText="Opções" width="15%">
+                    <p:commandButton icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir">
+                        <f:setPropertyActionListener target="#{MBProduto.produto}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" actionListener="#{MBProduto.atualizaFabricante()}" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar">
+                        <f:setPropertyActionListener target="#{MBProduto.produto}" value="#{item}"/>
+                    </p:commandButton>  
+                    <p:commandButton icon="ui-icon-plusthick" onclick="PF('dlgFoto').show();" update=":formFoto">
+                        <f:setPropertyActionListener target="#{MBProduto.produto}" value="#{item}"/>
+                    </p:commandButton> 
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela,formPesquisa:pesq">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>       
+        <h:form>                     
+            <center><p:commandButton value="Novo" actionListener="#{MBProduto.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de fabricante" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo" enctype="multipart/form-data">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Codigo" for="codigo"/>
+                    <p:inputText id="codigo" value="#{MBProduto.produto.codigo}" size="30"  required="true" requiredMessage="O campo codigo é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Descrição" for="descricao"/>
+                    <p:inputText id="descricao" value="#{MBProduto.produto.descricao}" size="30"  required="true" requiredMessage="O campo descrição é obrigatorio" autocomplete="off" maxlength="100"/>
+                    <p:outputLabel value="Preço" for="preco"/>
+                    <p:inputText value="#{MBProduto.produto.preco}" id="preco" size="30" maxlength="30" required="true" requiredMessage="O campo valor é obrigatorio" autocomplete="off" converterMessage="O campo preco somente aceita numeros" validatorMessage="O campo preco não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Estoque" for="estoque"/>
+                    <p:inputText id="estoque" value="#{MBProduto.produto.estoque}" size="30"  required="true" requiredMessage="O campo estoque é obrigatorio" autocomplete="off" maxlength="60" converterMessage="O campo quantidade somente aceita numeros inteiros"/>
+                    <p:outputLabel value="Fabricante"/>
+                    <p:selectOneMenu value="#{MBProduto.produto.fabricante.codigo}" filter="true" required="true" requiredMessage="É necessario ter um fabricante na lista">
+                        <f:selectItems value="#{MBProduto.listaFabricantes}" var="itemSalvar" itemValue="#{itemSalvar.codigo}" itemLabel="#{itemSalvar.nome}"/>                    
+                    </p:selectOneMenu>  
+                    <p:outputLabel value="Foto"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBProduto.upload}" allowTypes="/(\.|\/)(jpe?g)$/" invalidFileMessage="Somente são aceitos arquivos jpeg" update=":msgGlobal"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBProduto.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração do produto" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText id="codigo" value="#{MBProduto.produto.codigo}"/>
+                    <p:outputLabel value="Descrição" for="descricao"/>
+                    <p:inputText id="descricao" value="#{MBProduto.produto.descricao}" size="30"  required="true" requiredMessage="O campo descrição é obrigatorio" autocomplete="off" maxlength="100"/>
+                    <p:outputLabel value="Preço" for="preco"/>
+                    <p:inputText value="#{MBProduto.produto.preco}" id="preco" size="30" maxlength="30" required="true" requiredMessage="O campo valor é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Estoque" for="estoque"/>
+                    <p:inputText id="estoque" value="#{MBProduto.produto.estoque}" size="30"  required="true" requiredMessage="O campo estoque é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Fabricante"/>
+                    <p:selectOneMenu value="#{MBProduto.produto.fabricante.codigo}" filter="true" required="true" requiredMessage="É necessario ter um fabricante na lista">
+                        <f:selectItems value="#{MBProduto.listaFabricantes}" var="itemSalvar" itemValue="#{itemSalvar.codigo}" itemLabel="#{itemSalvar.nome}"/>                    
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Foto"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBProduto.upload}" allowTypes="/(\.|\/)(jpe?g)$/" invalidFileMessage="Somente são aceitos arquivos jpeg" update=":msgGlobal"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBProduto.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão do fabricante" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBProduto.produto.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBProduto.produto.descricao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" actionListener="#{MBProduto.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        <!--Final formulario excluir-->
+        <p:dialog widgetVar="dlgFoto" closable="true" draggable="false" resizable="false" header="Foto do produto" modal="true" appendTo="@(body)">
+            <h:form id="formFoto">
+                <center><p:graphicImage library="upload" name="#{MBProduto.produto.codigo}.jpg"/></center>
+            </h:form>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">           
+
+        <center>
+            <h:panelGrid id="pnlPesquisa" columns="5" style="margin: 1%;">  
+                <h:form id="formPesquisa" >
+                    <h:outputText value="Inicio: "/>
+                    <p:calendar  value="#{MBCrediario.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                               
+                    <h:outputText value=" Final: "/>
+                    <p:calendar value="#{MBCrediario.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                              
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBCrediario.listarCrediario()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal" style="margin-left: 5px"/>                       
+                </h:form>
+            </h:panelGrid>                
+        </center>                 
+        <h:form id="frmTabela">              
+            <p:dataTable id="tabela" widgetVar="table" rowIndexVar="numero" value="#{MBCrediario.listaCrediario}" filteredValue="#{MBCrediario.listaCrediarioFiltrado}" var="item" paginator="true"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Controle de crediário"/>
+                </f:facet>
+                <p:column headerText="Data da compra" width="10%">
+                    <h:outputText value="#{item.venda.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column> 
+                <p:column headerText="Data a receber" width="10%">                    
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>                                                            
+                </p:column>                
+                <p:column headerText="Cliente" filterBy="#{item.cliente.nome}" filterStyle="width:80%" >
+                    <h:outputText value="#{item.cliente.nome}"/>
+                </p:column>                
+                <p:column headerText="Rua" filterBy="#{item.cliente.rua}" width="18%"  filterStyle="width:80%" >
+                    <h:outputText value="#{item.cliente.rua}"/>
+                </p:column>
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{item.cliente.numero}"/>
+                </p:column>
+                <p:column headerText="A receber" width="10%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.venda.valor - (item.venda.valor * (item.venda.desconto / 100))}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                  
+                </p:column> 
+                <p:column headerText="Situação" filterBy="#{item.situacao}" width="10%">                  
+                    <h:outputText value="#{item.situacao}"/>                        
+                </p:column>
+                <p:column headerText="Opções"  width="15%">                    
+                    <p:commandButton icon="ui-icon-check" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Registrar recebimento" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCrediario.crediario}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:commandButton  icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Excluir crediário" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCrediario.crediario}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton  icon="ui-icon-plusthick" oncomplete="PF('dlgDetalhes').show();" update=":frmDetalhes:panelDetalhes" title="Ver detalhes" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCrediario.crediario}" value="#{item}"/>
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>  
+        <h:form>
+            <center><h:panelGrid columns="6" style="margin-top: 1%">
+                    <p:commandButton value="Quantidade" actionListener="#{MBCrediario.somarQuantidade()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar total" actionListener="#{MBCrediario.somarAreceber()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                </h:panelGrid></center>
+        </h:form> 
+
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Recebimento de crediário" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid id="panelAlterar" columns="2">
+                    <h:outputText value="Data da venda:"/>
+                    <h:outputText value="#{MBCrediario.crediario.venda.data}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Data do recebimento:"/>
+                    <h:outputText value="#{MBCrediario.crediario.data}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Cliente"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.nome}" />
+                    <h:outputText value="Situação"/>
+                    <h:outputText value="#{MBCrediario.crediario.situacao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Recebido" id="alterar" title="Confirmar recebimento"  actionListener="#{MBCrediario.registrarRecebimento()}"  oncomplete="PF('dlgAlterar').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgAlterar').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:alterar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de crediário" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Data da venda:"/>
+                    <h:outputText value="#{MBCrediario.crediario.venda.data}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Data do recebimento:"/>
+                    <h:outputText value="#{MBCrediario.crediario.data}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Cliente"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.nome}" />
+                    <h:outputText value="Situação"/>
+                    <h:outputText value="#{MBCrediario.crediario.situacao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBCrediario.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <p:dialog widgetVar="dlgDetalhes" closable="true" draggable="false" resizable="false" header="Informações detalhadas" modal="true" appendTo="@(body)">
+            <h:form id="frmDetalhes">
+                <h:panelGrid id="panelDetalhes" columns="2">
+                    <h:outputText value="Nome:"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.nome}"/>                        
+                    <h:outputText value="Bairro"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.bairro}"/>                       
+                    <h:outputText value="Rua"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.rua}"/>
+                    <h:outputText value="Numero"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.numero}"/>
+                    <h:outputText value="Fone"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.telefone}"/>
+                    <h:outputText value="E-mail"/>
+                    <h:outputText value="#{MBCrediario.crediario.cliente.email}"/>
+                </h:panelGrid>                
+            </h:form>            
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+

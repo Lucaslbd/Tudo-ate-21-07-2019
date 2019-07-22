@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">
+        <center> <h:form id="formPesquisa">
+                <h:panelGrid id="pnlPesquisa" columns="5">
+                    <p:focus context="formPesquisa"/>
+                    <h:outputText value="codigo:"/>
+                    <p:inputText value="#{MBProduto.codigo}" autocomplete="off"/>                                                                 
+                    <p:commandButton id="pesq" actionListener="#{MBProduto.buscarCodigo()}" value="Pesquisar"  update=":frmTabela:tabela :formPesquisa :msgGlobal"/> 
+                    <p:commandButton actionListener="#{MBProduto.limparEtiquetas()}" value="Limpar"  update=":frmTabela:tabela :formPesquisa :msgGlobal"/>                       
+                </h:panelGrid>                
+            </h:form></center>
+        <p:separator/>
+        <h:form id="frmTabela">
+            <p:commandButton value="Imprimir" type="button" icon="ui-icon-print" style="display:block;margin-bottom: 20px">
+                <p:printer target="tabela"/>
+            </p:commandButton>
+            <p:dataGrid id="tabela" columns="4" var="item" value="#{MBProduto.listaProduto}" layout="grid" emptyMessage="Insira um item para impressão">
+                <p:panel id="painel" header="#{item.descricao}" style="text-align:center; height:109px">
+                    <h:panelGrid columns="2">
+                        <p:barcode value="#{item.codigo}" type="ean13" style="width:100px; border-left:0px"/>
+                        <h:outputText value="#{item.preco}" style="font-size:60px; color:red; font-weight:bold">
+                            <f:convertNumber pattern="0.00"/> 
+                        </h:outputText>                       
+                    </h:panelGrid>
+                </p:panel>
+            </p:dataGrid>
+        </h:form>
+    </ui:define>           
+</ui:composition>
+

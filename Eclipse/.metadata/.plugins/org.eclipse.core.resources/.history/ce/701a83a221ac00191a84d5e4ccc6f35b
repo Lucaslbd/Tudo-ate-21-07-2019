@@ -1,0 +1,7 @@
+function validar(){
+	var valor = document.getElementById("valor");
+	
+		alert(valor.value());
+		valor.focus();
+	
+}

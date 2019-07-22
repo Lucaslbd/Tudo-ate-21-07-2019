@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/ModeloCaixa.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBChegadaMercadoria.preencherObjetos()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>    
+    <!--.......................................................................................--> 
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <!--.......................................................................................--> 
+    <ui:define name="esquerda">
+
+        <div style="background-color: beige" >
+            <h:form id="menu">
+                <h:panelGrid columns="2" rendered="#{MBChegadaMercadoria.finaliza}">
+                    <h:outputLabel value="Produto"/>
+                    <p:selectOneMenu value="#{MBChegadaMercadoria.produto}" style="width:200px" filter="true" required="true" requiredMessage="É necessario ter um produto na lista" converter="produtoConverter">
+                        <f:selectItems value="#{MBChegadaMercadoria.listaProduto}" var="produto" itemValue="#{produto}" itemLabel="#{produto.nome}"/>                    
+                    </p:selectOneMenu>
+                    <h:outputLabel value="Tipo"/>
+                    <p:selectOneMenu value="#{MBChegadaMercadoria.casco}" filter="true" required="true">
+                        <f:selectItem itemValue="Sem casco" itemLabel="Sem casco"/>    
+                        <f:selectItem itemValue="Com casco" itemLabel="Com casco"/>    
+                    </p:selectOneMenu>
+                    <h:outputLabel value="Qtd"/>
+                    <p:inputText value="#{MBChegadaMercadoria.quantidade}" size="5" required="true" requiredMessage="O campo quantidade é obrigatorio" converterMessage="O campo quantidade somente aceita numeros" validatorMessage="O campo quantidade não aceita valores menores que 1">
+                        <f:validateDoubleRange minimum="1"/>
+                    </p:inputText>
+                </h:panelGrid>  
+                <center><p:commandButton id="adicionar" value="Adicionar" actionListener="#{MBChegadaMercadoria.adicionar()}" update=":frmTabela :pnlTotal :menu :msgGlobal" style="margin-top:4%; margin-bottom: 4%;  width:99%; background-color:yellowgreen" rendered="#{MBChegadaMercadoria.finaliza}"/></center>
+            </h:form>
+        </div>
+        <center><h:panelGrid columns="2" id="pnlTotal" style="font-size: 25px; font-weight: bold; margin-bottom:5%; margin-top:5%; color: blue">
+                <h:outputLabel value="Total R$"/>
+                <h:outputLabel value="#{MBChegadaMercadoria.valorTotal}"/>
+            </h:panelGrid></center>
+        <h:form id="menu2">           
+            <div style="background-color: beige" >  
+                <h:panelGrid columns="2" rendered="#{!MBChegadaMercadoria.finaliza}">
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputText value="#{MBChegadaMercadoria.descricao}" required="true" requiredMessage="Preencha com o identificador da nota" size="20" maxlength="20"/>
+                    <p:outputLabel value="Chegada"/>
+                    <p:calendar  value="#{MBChegadaMercadoria.data1}" required="true" requiredMessage="Preencha a data de chegada" mask="99/99/9999" pattern="dd/MM/yyyy"/>    
+                    <p:outputLabel value="Vencimento"/>
+                    <p:calendar  value="#{MBChegadaMercadoria.data2}" required="true" requiredMessage="Preencha a data de chegada" mask="99/99/9999" pattern="dd/MM/yyyy"/>    
+                </h:panelGrid>  
+                <center><p:commandButton id="Finalizar" actionListener="#{MBChegadaMercadoria.finalizar()}" value="Finalizar nota" style="margin-top:4%; margin-bottom: 4%;  width:99%; background-color:yellowgreen" update=":menu :menu2 :frmTabela :pnlTotal :frmCancel :msgGlobal" rendered="#{!MBChegadaMercadoria.finaliza}"/></center>
+            </div> 
+            <p:blockUI block="menu2" trigger=":menu2:Finalizar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form> 
+    </ui:define>
+    <!--.......................................................................................-->
+    <ui:define name="conteudo">
+        <h:form id="frmCancel"> 
+            <p:toolbar>               
+                <f:facet name="right">
+                    <p:commandButton value="Cancelar operação" id="cancel" actionListener="#{MBChegadaMercadoria.cancelar()}" update=":menu :menu2 :frmTabela :pnlTotal :msgGlobal" style="background-color:red;"/>
+                </f:facet>
+            </p:toolbar>
+        </h:form>
+        <h:form id="frmTabela">          
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBChegadaMercadoria.listaItem}" var="item" rowIndexVar="numero" rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Chegada de mercadoria" style="color:blue"/>
+                </f:facet>
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{numero +1}"/>
+                </p:column>                
+                <p:column headerText="Produto">
+                    <h:outputText value="#{item.produto.nome}" />
+                </p:column>
+                <p:column headerText="Casco" width="15%">
+                    <h:outputText value="#{item.casco}"/>
+                </p:column>  
+                <p:column headerText="Quantidade" width="15%">
+                    <h:outputText value="#{item.quantidade}"/>
+                </p:column>  
+                <p:column headerText="Valor" width="15%">
+                    <h:outputText value="#{item.valor * item.quantidade}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>                      
+                <p:column headerText="Opções" width="15%">                    
+                    <p:commandButton icon="ui-icon-trash" id="btRemover" actionListener="#{MBChegadaMercadoria.remover(numero)}" style="height: 20px"  update=":menu :menu2 :frmTabela :pnlTotal :frmCancel :msgGlobal" title="Remover da lista" rendered="#{MBChegadaMercadoria.finaliza}"/>   
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" actionListener="#{MBChegadaMercadoria.recebe(item,numero)}" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar :msgGlobal" title="Alterar informações" style="height:20px"/>                                             
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>            
+            <p:blockUI block="frmTabela:tabela" trigger=":menu:adicionar :frmCancel:cancel :frmTabela:fnlLista :frmTabela:tabela:btRemover">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+            <center><p:commandButton value="Finalizar lista" id="fnlLista" actionListener="#{MBChegadaMercadoria.finalizaLista()}" update=":menu :menu2 :frmTabela :frmCancel :msgGlobal" style="width:99%; background-color:yellowgreen" rendered="#{MBChegadaMercadoria.finaliza}"/></center>
+        </h:form>
+
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de preço" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">                     
+                    <p:outputLabel value="Novo valor"/>
+                    <p:inputText  value="#{MBChegadaMercadoria.valorAlterar}" size="30"  required="true" requiredMessage="O campo preço do casco é obrigatorio" autocomplete="off" converterMessage="O campo somente aceita numeros" validatorMessage="O campo não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                                      
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Alterar" title="Confirmar alterações" id="editar" actionListener="#{MBChegadaMercadoria.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":menu :menu2 :frmTabela :pnlTotal :frmCancel :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>        
+    </ui:define>
+</ui:composition>

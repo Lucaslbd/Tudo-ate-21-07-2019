@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBFuncionario.acao}"/>  
+            <f:viewParam name="codigo" value="#{MBFuncionario.codigo}"/>  
+            <f:event listener="#{MBFuncionario.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo">  
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Cadastro de funcionário"/>
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">            
+            <p:panelGrid columns="1" style="padding: 30px; margin: 20px">
+                <h:panelGrid columns="2">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Nome"/>
+                        <p:inputText value="#{MBFuncionario.funcionario.nome}" size="40" maxlength="60" required="true" requiredMessage="Preencha o campo nome" autocomplete="off" placeholder="Nome"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Telefone"/>
+                        <p:inputMask value="#{MBFuncionario.funcionario.telefone}" mask="(99) 9 9999-9999" size="40" required="true" requiredMessage="Preencha o campo telefone" autocomplete="off"  placeholder="Telefone"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="CPF"/>
+                        <p:inputMask value="#{MBFuncionario.funcionario.cpf}" mask="999.999.999-99" size="40" placeholder="CPF" required="true" requiredMessage="Preencha o campo cpf" autocomplete="off"/>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Rg"/>
+                        <p:inputText value="#{MBFuncionario.funcionario.rg}" size="40" maxlength="20" placeholder="RG" required="true" requiredMessage="Preencha o campo rg" autocomplete="off"/>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Cargo"/>
+                        <p:inputText value="#{MBFuncionario.funcionario.cargo}" size="40" maxlength="60" required="true" requiredMessage="Preencha o campo cargo" autocomplete="off" placeholder="Cargo"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Salário"/>
+                        <p:inputText value="#{MBFuncionario.funcionario.salario}" size="40" maxlength="7" required="true" requiredMessage="Preencha o campo salário" autocomplete="off" placeholder="Salário" converterMessage="O campo salário somente aceita numeros" validatorMessage="O campo salário não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Comissionamento"/>
+                        <p:inputText value="#{MBFuncionario.funcionario.comissao}" size="40" maxlength="5" required="true" requiredMessage="Preencha o campo comissionamento" autocomplete="off" placeholder="Comissionamento" converterMessage="O campo comissionamento somente aceita numeros" validatorMessage="O campo comissionamento não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Status"/>
+                        <p:selectOneMenu value="#{MBFuncionario.funcionario.situacao}" required="true" requiredMessage="Selecione um status" style="width: 200px">
+                            <f:selectItem itemLabel="Admitido" itemValue="Admitido"/>   
+                            <f:selectItem itemLabel="Demitido" itemValue="Demitido"/>                              
+                        </p:selectOneMenu> 
+                    </h:panelGrid>
+                    <h:panelGrid columns="5" style="margin-top: 10px">
+                        <p:commandButton value="Salvar" id="salvar" icon="ui-icon-disk" title="Salvar" actionListener="#{MBFuncionario.salvar()}" update=":msgGlobal" rendered="#{MBFuncionario.acao == 1}"/>
+                        <p:commandButton value="Alterar" icon="ui-icon-pencil" title="Alterar" actionListener="#{MBFuncionario.alterar()}" update=":msgGlobal" rendered="#{MBFuncionario.acao == 3}"/>
+                        <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" title="Voltar" outcome="funcionarios.xhtml"/>
+                    </h:panelGrid>
+                </h:panelGrid>
+            </p:panelGrid> 
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

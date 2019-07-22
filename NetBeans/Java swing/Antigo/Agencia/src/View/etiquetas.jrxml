@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" printOrder="Horizontal" pageWidth="255" pageHeight="82" orientation="Landscape" columnWidth="255" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="40fea505-14ae-43cd-ab9a-d90e47b1d961">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="mm"/>
+	<queryString>
+		<![CDATA[select pj.razao_social, e.logradouro, e.numero, e.bairro, e.cep, e.cidade, e.uf
+  from global.pessoa_juridica pj
+  join global.pessoa p on p.id = pj.id
+  join global.endereco e on e.id = p._endereco
+  left join global.cnae_pessoa_juridica cp on cp._pessoa_juridica = pj.id
+  where e.uf = 'PR'
+    and e.cidade = 'CURITIBA'
+    and (pj._cnae in (6920602, 6920601, 6911701) or cp._cnae in (6920602, 6920601, 6911701))
+    group by pj.razao_social, e.logradouro, e.numero, e.bairro, e.cep, e.cidade, e.uf]]>
+	</queryString>
+	<field name="nome" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="82" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="30" width="235" height="30" uuid="50e1c685-3120-4d37-ad40-850a9eab028a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nome}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

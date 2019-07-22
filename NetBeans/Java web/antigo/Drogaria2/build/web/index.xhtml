@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    
+    <ui:define name="menu">
+       <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo"> 
+        <h:form>
+            <p:toolbar>
+                <f:facet name="left">
+                    <h:outputText value="Autenticação"/>
+                </f:facet>
+            </p:toolbar>           
+            <h:panelGrid columns="2">
+                <p:outputLabel value="Cpf"/>
+                <p:inputMask mask="999.999.999-99" value="#{MBAutenticacao.funcionarioLogado.cpf}" required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off"/>
+                <p:outputLabel value="Senha"/>
+                <p:password maxlength="8" size="20" value="#{MBAutenticacao.funcionarioLogado.senha}" required="true" requiredMessage="O campo senha é obrigatorio" />
+            </h:panelGrid>
+            <h:panelGrid columns="1">
+                <p:commandButton value="Entrar" action="#{MBAutenticacao.entrar()}" update=":msgGlobal"/>
+            </h:panelGrid>
+        </h:form>
+    </ui:define>     
+</ui:composition>
+

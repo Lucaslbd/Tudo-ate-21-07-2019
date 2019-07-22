@@ -1,0 +1,49 @@
+.ui-layout-north{
+    z-index:20 !important;
+    overflow: visible !important;
+}
+.ui-layout-north .ui-layout-unit-content{
+    overflow: visible !important;
+}
+.ui-widget, .ui-widget, .ui-widget{
+    font-size: 95% !important;
+}
+
+.botao{
+    width: 100px;
+}
+
+.botao:hover{
+    background-color: yellow;
+}
+
+.botao1{
+
+}
+
+.botao1:hover{
+    background-color: yellow;
+}
+
+.bordas{   
+    margin: 10px;
+    background-color:#e9e9e9;
+    border-radius: 10px;
+    padding: 20px;    
+}
+
+#contato{
+	margin-top:20px;
+}
+.label{
+	font-size:15pt;
+	font-family:arial;
+	font-weight:bold;
+	font-style:italic;
+	color:#888;
+	display:block;
+	margin-top:20px;
+}
+
+
+

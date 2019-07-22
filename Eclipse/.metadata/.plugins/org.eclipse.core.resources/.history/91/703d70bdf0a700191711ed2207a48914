@@ -1,0 +1,35 @@
+body{
+	background-color: gray;
+}
+
+fieldset{
+	width: 50%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 20px;
+	background-color: #CCCCCC;	
+}
+
+legend{		
+	font-size: 30px;
+	color: white;
+}
+
+input {
+	width: 90%;
+	height: 30px;
+	margin-bottom: 20px;
+	border-radius: 5px;
+}
+
+input[type=submit] {
+	height: 40px;
+	background-color: #3A4154;
+	color: white;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+input[type=submit]:hover {
+	background-color: #3A6464;
+}

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBContato.acao}"/>
+            <f:viewParam name="codigo" value="#{MBContato.codigo}"/>
+            <f:event listener="#{MBContato.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo"> 
+        <p:panel header="Pedido de contato" style="border-radius: 15px; background-color: blue; font-weight: bold ">
+            <h:form id="frmNovo">
+                <p:panel class="bordas">                    
+                    <h:panelGrid columns="2">
+                        <h:outputText value="Nome:"/>
+                        <h:outputText value="#{MBContato.contato.nome}"/>
+                        <h:outputText value="Data:"/>
+                        <h:outputText value="#{MBContato.contato.data}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>
+                        <h:outputText value="E-mail:"/>
+                        <h:outputText value="#{MBContato.contato.email}"/>
+                        <h:outputText value="Fone:"/>
+                        <h:outputText value="#{MBContato.contato.fone}"/>
+                        <h:outputText value=""/>
+                        <h:inputTextarea cols="40" rows="7" value="#{MBContato.contato.motivo}" style="resize: none;" readonly="true"/>
+                    </h:panelGrid>  
+                </p:panel>
+                <h:panelGrid columns="2">       
+                    <p:commandButton value="Excluir" title="Excluir" id="excluir" actionListener="#{MBContato.excluir()}" style="width: 100px" update=":msgGlobal" rendered="#{MBContato.acao == 'excluir'}"/>
+                    <p:button value="Voltar" title="Voltar" id="voltar" outcome="Contato.xhtml" class="botao" style="width: 100px"/>  
+                </h:panelGrid>
+                <p:blockUI block="frmNovo" trigger=":frmNovo:excluir">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>    
+            </h:form>           
+        </p:panel>            
+    </ui:define>    
+</ui:composition>
+

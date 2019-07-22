@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">           
+
+        <center>
+            <h:panelGrid id="pnlPesquisa" columns="5" style="margin: 1%;">  
+                <h:form id="formPesquisa" >
+                    <h:outputText value="Inicio: "/>
+                    <p:calendar  value="#{MBVenda.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                  
+                    <h:outputText value=" Final: "/>
+                    <p:calendar value="#{MBVenda.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBVenda.listar()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :bt:rel :msgGlobal" style="margin-left: 5px"/>                       
+                </h:form>
+            </h:panelGrid>                
+        </center>                 
+        <h:form id="frmTabela">    
+            <p:toolbar>
+                <f:facet name="left">
+                    <h:outputText value="Ir para modo de visualização item: "  style="color: blue"/>
+                    <p:commandButton value="Ir" action="#{MBVenda.paginaVenda()}" update=":msgGlobal"  style="background-color:yellowgreen"/>
+                </f:facet>
+            </p:toolbar>  
+            <p:dataTable id="tabela" widgetVar="table" rowIndexVar="numero" value="#{MBVenda.listaVenda}" filteredValue="#{MBVenda.listaVendaFiltrada}" var="item" paginator="true"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Consulta de vendas"/>
+                </f:facet>
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{numero +1}"/>                        
+                </p:column> 
+                <p:column headerText="Data" width="10%">
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Pagamento" filterBy="#{item.formaPagamento}" filterStyle="width:80%">
+                    <h:outputText value="#{item.formaPagamento}"/>
+                </p:column>
+                <p:column headerText="Tipo" filterBy="#{item.entrega}" filterStyle="width:80%">
+                    <h:outputText value="#{item.entrega}"/>
+                </p:column>
+                <p:column headerText="Valor da venda" width="10%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>                  
+                </p:column> 
+                <p:column headerText="Desconto" width="8%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor * (item.desconto / 100)}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>                  
+                </p:column>                              
+                <p:column headerText="Custo" width="8%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.custo}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Lucro" width="8%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor - item.custo - (item.valor * (item.desconto / 100))}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText> 
+                </p:column>
+                <p:column headerText="Porcentagem" width="10%">                                    
+                    <h:outputText value="#{((item.valor - item.custo - (item.valor * (item.desconto / 100))) / item.valor) * 100}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>
+                    <h:outputText value=" %"/>
+                </p:column> 
+                <p:column headerText="Opções">
+                    <p:commandButton  icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":dlEx" title="Excluir venda" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBVenda.venda}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:commandButton icon="ui-icon-search" title="Itens da venda" actionListener="#{MBItem.listarPorVenda(item.codigo)}" oncomplete="PF('dlgItem').show();" update=":dlItem :msgGlobal" style="height:20px"/>       
+                    <p:commandButton icon="ui-icon-person" title="Cliente comprador" actionListener="#{MBHistorico.listarPorVenda(item.codigo)}" oncomplete="PF('dlgHistorico').show();" update=":dlHistorico :msgGlobal" style="height:20px"/>                       
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>  
+        <h:form id="bt">
+            <center><h:panelGrid columns="6" id="rel" style="margin-top: 1%">
+                    <p:commandButton value="Somar apurado" actionListener="#{MBVenda.somarApurado()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar custo" actionListener="#{MBVenda.somarCusto()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar lucro" actionListener="#{MBVenda.somarLucro()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Porcentagem geral" actionListener="#{MBVenda.porcentagem()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton id="relatorio" value="Imprimir relatório" action="#{MBVenda.imprimirRelatorio()}" onclick="this.form.target = '_blank'" ajax="false" update=":msgGlobal" style="background-color:yellowgreen" rendered="#{MBVenda.controle}"/>
+                </h:panelGrid></center>
+        </h:form>
+        <p:blockUI block="frmTabela" trigger="bt:relatorio">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" id="dlEx" closable="false" draggable="false" resizable="false" header="Exclusão de venda" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">                    
+                    <h:outputText value="Data"/>
+                    <h:outputText value="#{MBVenda.venda.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Valor"/>
+                    <h:outputText value="#{MBVenda.venda.valor}" >
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBVenda.excluir()}" update=":frmTabela:tabela :msgGlobal"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir--> 
+
+        <p:dialog widgetVar="dlgItem" width="95%" id="dlItem" closable="true" draggable="false" resizable="false" header="Lista de itens" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela2">             
+                <p:dataTable value="#{MBItem.listaItem}" var="ite" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                    <f:facet name="header">
+                        <h:outputText value="Relação de itens da venda"/>
+                    </f:facet>
+                    <p:column headerText="Produto">
+                        <h:outputText value="#{ite.produto.nome}"/>
+                    </p:column> 
+                    <p:column headerText="Casco" width="10%">
+                        <h:outputText value="#{ite.casco}"/>
+                    </p:column> 
+                    <p:column headerText="Quantidade" width="10%">
+                        <h:outputText value="#{ite.quantdade}"/>
+                    </p:column>
+                    <p:column headerText="Valor" width="10%">
+                        <h:outputText value="#{ite.valor}">
+                            <f:convertNumber pattern="###,###,##0.00"/>
+                        </h:outputText> 
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="R$ "/>
+                            <h:outputText value="#{MBItem.valor}">
+                                <f:convertNumber pattern="###,###,##0.00"/>  
+                            </h:outputText>                                                  
+                        </f:facet>
+                    </p:column>  
+                    <p:column headerText="Desconto" width="7%">
+                        <h:outputText value="R$ "/>
+                        <h:outputText value="#{ite.valor * (ite.venda.desconto / 100)}">
+                            <f:convertNumber pattern="###,###,##0.00"/>
+                        </h:outputText>                  
+                    </p:column>                 
+                    <p:column headerText="Custo" width="10%">
+                        <h:outputText value="R$ "/>
+                        <h:outputText value="#{ite.custo}">
+                            <f:convertNumber pattern="###,###,##0.00"/>
+                        </h:outputText>
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="R$ "/>
+                            <h:outputText value="#{MBItem.custo}">
+                                <f:convertNumber pattern="###,###,##0.00"/>  
+                            </h:outputText>                                                  
+                        </f:facet>
+                    </p:column> 
+                    <p:column headerText="Lucro" width="10%">
+                        <h:outputText value="R$ "/>
+                        <h:outputText value="#{ite.valor - ite.custo - (ite.valor * (ite.venda.desconto / 100))}">
+                            <f:convertNumber pattern="###,###,##0.00"/>
+                        </h:outputText>
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="R$ "/>
+                            <h:outputText value="#{MBItem.valorComDesconto - MBItem.custo}">
+                                <f:convertNumber pattern="###,###,##0.00"/>  
+                            </h:outputText>                                                  
+                        </f:facet>
+                    </p:column> 
+                    <p:column headerText="Porcentegem" width="10%">
+                        <h:outputText value="#{(((ite.valor - ite.custo) - (ite.valor * (ite.venda.desconto / 100))) / ite.valor) * 100}">
+                            <f:convertNumber pattern="###,###,##0.00"/>
+                        </h:outputText>
+                        <h:outputText value=" %"/>
+                        <f:facet name="footer">                                  
+                            <h:outputText value="#{((MBItem.valorComDesconto - MBItem.custo) / MBItem.valor) * 100}">
+                                <f:convertNumber pattern="###,###,##0.00"/>  
+                            </h:outputText> 
+                            <p:outputLabel value=" %"/>
+                        </f:facet>
+                    </p:column> 
+                </p:dataTable>
+            </h:form>
+        </p:dialog>      
+
+        <p:dialog widgetVar="dlgHistorico" width="95%" id="dlHistorico" closable="true" draggable="false" resizable="false" header="Cliente comprador" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela3">             
+                <p:dataTable value="#{MBHistorico.lista}" var="cliente" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Cliente não identificado">
+                    <f:facet name="header">
+                        <h:outputText value="Cliente comprador"/>
+                    </f:facet>
+                    <p:column headerText="Nome">
+                        <h:outputText value="#{cliente.cliente.nome}"/>
+                    </p:column> 
+                    <p:column headerText="Cidade" width="15%">
+                        <h:outputText value="#{cliente.cliente.cidade}"/>
+                    </p:column> 
+                    <p:column headerText="Bairro" width="15%">
+                        <h:outputText value="#{cliente.cliente.bairro}"/>
+                    </p:column>
+                    <p:column headerText="Rua">
+                        <h:outputText value="#{cliente.cliente.rua}"/>                         
+                    </p:column>  
+                    <p:column headerText="N°" width="8%">
+                        <h:outputText value="#{cliente.cliente.numero}"/>                                        
+                    </p:column>                 
+                    <p:column headerText="Telefone" width="12%">
+                        <h:outputText value="#{cliente.cliente.telefone}"/>                        
+                    </p:column>                    
+                </p:dataTable>
+            </h:form>
+        </p:dialog>      
+    </ui:define>
+</ui:composition>
+

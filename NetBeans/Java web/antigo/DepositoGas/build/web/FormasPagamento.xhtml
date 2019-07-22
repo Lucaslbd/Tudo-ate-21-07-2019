@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFormaPagamento.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFormaPagamento.lista}" filteredValue="#{MBFormaPagamento.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de formas de pagamento"/>
+                </f:facet>                 
+                <p:column headerText="Tipo">
+                    <h:outputText value="#{item.tipo}"/>
+                </p:column>                   
+                <p:column headerText="Taxa descontada do depósito">
+                    <h:outputText value="#{item.desconto}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                    <h:outputLabel value=" %"/>
+                </p:column>                                
+                <p:column headerText="Opções">
+                    <p:commandButton  icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover registro" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBFormaPagamento.forma}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar informações" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBFormaPagamento.forma}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBFormaPagamento.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Adicionar novo registro"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Cadastro" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Tipo"/>
+                    <p:selectOneMenu id="tipo" value="#{MBFormaPagamento.forma.tipo}" filter="true">
+                        <f:selectItem itemLabel="Dinheiro" itemValue="Dinheiro"/>
+                        <f:selectItem itemLabel="Cartão de credito" itemValue="Cartão de credito"/>
+                        <f:selectItem itemLabel="Cartão de debito" itemValue="Cartão de debito"/> 
+                        <f:selectItem itemLabel="Cheque" itemValue="Cheque"/>
+                        <f:selectItem itemLabel="Crediário" itemValue="Crediário"/> 
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Taxa(%)"/>
+                    <p:inputText value="#{MBFormaPagamento.forma.desconto}" size="30"  required="true" requiredMessage="O campo desconto é obrigatorio" autocomplete="off" maxlength="5" converterMessage="O campo desconto somente aceita numeros" validatorMessage="O campo desconto não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                    
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBFormaPagamento.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar operação" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de registro" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBFormaPagamento.forma.codigo}"/>
+                    <p:outputLabel value="Tipo"/>
+                    <p:selectOneMenu id="tipo" value="#{MBFormaPagamento.forma.tipo}" filter="true">
+                        <f:selectItem itemLabel="Dinheiro" itemValue="Dinheiro"/>
+                        <f:selectItem itemLabel="Cartão de credito" itemValue="Cartão de credito"/>
+                        <f:selectItem itemLabel="Cartão de debito" itemValue="Cartão de debito"/> 
+                        <f:selectItem itemLabel="Crediário" itemValue="Crediário"/> 
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Taxa(%)"/>
+                    <p:inputText value="#{MBFormaPagamento.forma.desconto}" size="30"  required="true" requiredMessage="O campo desconto é obrigatorio" autocomplete="off" maxlength="5" converterMessage="O campo desconto somente aceita numeros" validatorMessage="O campo desconto não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                    
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Confirmar" title="Confirmar alterações" id="editar" actionListener="#{MBFormaPagamento.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de registro" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">                
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBFormaPagamento.forma.codigo}" />
+                    <h:outputText value="Tipo"/>
+                    <h:outputText value="#{MBFormaPagamento.forma.tipo}" />                   
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBFormaPagamento.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

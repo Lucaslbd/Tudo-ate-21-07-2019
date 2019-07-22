@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core">
+    
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">
+        <p:panelGrid columns="2">
+            <p:outputLabel value="Usuario:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.nome}"/>
+            <p:outputLabel value="Cpf:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.cpf}"/>
+            <p:outputLabel value="Tipo:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.tipo}"/>
+            <p:outputLabel value="Depósito:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.razaoSocial}"/>
+            <p:outputLabel value="Cnpj:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.cnpj}"/>
+            <p:outputLabel value="Estado:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.estado}"/>
+            <p:outputLabel value="Cep:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.cep}"/>
+            <p:outputLabel value="Cidade:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.cidade}"/>
+            <p:outputLabel value="Bairro:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.bairro}"/>
+            <p:outputLabel value="Rua:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.rua}"/>
+            <p:outputLabel value="N°:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.numero}"/>
+            <p:outputLabel value="Email:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.email}"/>
+            <p:outputLabel value="Fone:"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.telefone}"/>
+            <p:outputLabel value="Mensalidade: R$"/>
+            <p:outputLabel value="#{MBAutenticacao.usuario.deposito.mensalidade}">
+                <f:convertNumber pattern="0.00"/>
+            </p:outputLabel>
+        </p:panelGrid>        
+    </ui:define>    
+</ui:composition>
+

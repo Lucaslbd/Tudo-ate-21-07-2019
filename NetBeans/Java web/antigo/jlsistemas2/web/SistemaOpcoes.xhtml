@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBSistema.acao}"/>
+            <f:viewParam name="codigo" value="#{MBSistema.codigo}"/>
+            <f:event listener="#{MBSistema.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>   
+
+    <ui:define name="conteudo"> 
+        <p:panel header="Cadastro de sistemas" style="border-radius: 10px; background-color:blue; font-weight: bold ">
+            <h:form id="frmNovo"> 
+                <p:panel class="bordas">
+                    <h:panelGrid columns="2" rendered="#{MBSistema.acao != 'novo'}" style="margin-bottom: 10px"> 
+                        <p:outputLabel value="Codigo:"/>
+                        <h:outputText value="#{MBSistema.sistema.codigo}"/>                                
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">    
+                        <p:graphicImage library="uploadFotos" name="#{MBSistema.sistema.codigo}.jpg" rendered="#{MBSistema.acao != 'novo'}"/>
+                        <p:outputLabel value="Nome"/>
+                        <p:inputText value="#{MBSistema.sistema.nome}" size="30" maxlength="60" required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" readonly="#{MBSistema.acao == 'excluir'}"/>
+                        <p:outputLabel value="Ramo"/>
+                        <p:inputText value="#{MBSistema.sistema.ramo}" size="30" maxlength="30" required="true" requiredMessage="O campo ramo é obrigatorio" autocomplete="off" readonly="#{MBSistema.acao == 'excluir'}"/>
+                        <p:outputLabel value="Versão"/>
+                        <p:inputText value="#{MBSistema.sistema.versao}" size="30" maxlength="10"  required="true" requiredMessage="O campo versão é obrigatorio" autocomplete="off" readonly="#{MBSistema.acao == 'excluir'}"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <h:outputLabel value="Descrição"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="2">                    
+                        <p:inputTextarea  value="#{MBSistema.sistema.descricao}" maxlength="200"  required="true" requiredMessage="O campo descrição é obrigatorio" rows="5" cols="40" readonly="#{MBSistema.acao == 'excluir'}"/>
+                        <h:panelGrid columns="3" rendered="#{MBSistema.acao != 'excluir'}">
+                            <h:panelGrid style="text-align:center" columns="1">
+                                <p:outputLabel value="Foto"/>
+                                <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadFotos}" allowTypes="/(\.|\/)(jpe?g)$/" invalidFileMessage="Somente são aceitos arquivos jpeg" update=":msgGlobal"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1" style="text-align:center">    
+                                <p:outputLabel value="Tutorial"/>
+                                <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadTxt}" allowTypes="/(\.|\/)(txt?)$/" invalidFileMessage="Somente são aceitos arquivos txt" update=":msgGlobal"/>
+                            </h:panelGrid> 
+                            <h:panelGrid columns="1" style="text-align:center">
+                                <p:outputLabel value="Sistema"/>
+                                <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadSistema}" allowTypes="/(\.|\/)(rar?)$/" invalidFileMessage="Somente são aceitos arquivos rar" update=":msgGlobal"/>
+                            </h:panelGrid>
+                        </h:panelGrid>
+                    </h:panelGrid> 
+                </p:panel>
+                <h:panelGrid columns="4">
+                    <p:commandButton value="Salvar" title="Salvar" id="salvar" actionListener="#{MBSistema.salvar()}" update=":msgGlobal" rendered="#{MBSistema.acao == 'novo'}" class="botao"/>
+                    <p:commandButton value="Alterar" title="Alterar" id="editar" actionListener="#{MBSistema.alterar()}" update=":msgGlobal" rendered="#{MBSistema.acao == 'editar'}" class="botao"/>
+                    <p:commandButton value="Excluir" title="Excluir" id="excluir" actionListener="#{MBSistema.excluir()}" update=":msgGlobal" rendered="#{MBSistema.acao == 'excluir'}" class="botao"/>
+                    <p:button value="Voltar" title="Voltar" id="voltar" outcome="Sistema.xhtml" class="botao"/>  
+                </h:panelGrid>                
+            </h:form> 
+        </p:panel>
+        <p:blockUI block="frmNovo" trigger=":frmNovo:salvar :frmNovo:editar :frmNovo:excluir">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>        
+    </ui:define>    
+</ui:composition>
+

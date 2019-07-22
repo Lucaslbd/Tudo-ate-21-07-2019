@@ -1,0 +1,33 @@
+package dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import connection.SingleConnection;
+import domain.Usuario;
+
+public class UsuarioDao {
+
+	private Connection connection;
+
+	public UsuarioDao() {
+		connection = SingleConnection.getConnection();
+	}
+	
+	public void salvar(Usuario usuario) {
+		
+	}
+
+	public boolean logar(String email, String senha) throws SQLException {
+		String sql = "select * from usuario where email = '" + email + "' and senha = '" + senha + "'";
+		PreparedStatement statement = connection.prepareStatement(sql);
+		ResultSet resultSet = statement.executeQuery();
+		if (resultSet.next()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}

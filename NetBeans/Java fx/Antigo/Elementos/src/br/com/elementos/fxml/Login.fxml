@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="291.0" prefWidth="679.0" style="-fx-background-color: #20120F;" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.elementos.controller.LoginController">
+    <stylesheets>
+        <URL value="@/br/com/elementos/css/login.css" />
+    </stylesheets>
+   <children>
+      <AnchorPane layoutX="392.0" layoutY="5.0" prefHeight="286.0" prefWidth="287.0" style="-fx-background-color: #9c2827;">
+         <children>
+            <TextField fx:id="email" layoutX="22.0" layoutY="95.0" prefHeight="25.0" prefWidth="242.0" promptText="E-mail" />
+            <PasswordField fx:id="senha" layoutX="22.0" layoutY="145.0" prefHeight="25.0" prefWidth="242.0" text="Senha" />
+            <Button layoutX="22.0" layoutY="197.0" mnemonicParsing="false" onAction="#entrar" prefHeight="25.0" prefWidth="242.0" style="-fx-background-color: #E45652; -fx-cursor: hand;" text="Entrar" textFill="#f5f4f4" />
+            <Label layoutX="121.0" layoutY="26.0" text="Login" textFill="#fffefe">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <Label layoutX="93.0" layoutY="33.0" text="Seja Bem Vindo" textFill="#fcf9f9">
+         <font>
+            <Font name="Georgia Bold" size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="118.0" layoutY="129.0" text="GESTUR" textFill="#fffafa">
+         <font>
+            <Font name="Georgia" size="36.0" />
+         </font>
+      </Label>
+      <Label layoutX="21.0" layoutY="187.0" styleClass="teste" text="Sistema de gestão para agencia de viagens" textFill="#f8f6f6">
+         <font>
+            <Font name="Verdana Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="5.0" layoutY="267.0" text="\@2018 - JL Sistemas de gestão" textFill="#f8f6f6" />
+   </children>
+</AnchorPane>

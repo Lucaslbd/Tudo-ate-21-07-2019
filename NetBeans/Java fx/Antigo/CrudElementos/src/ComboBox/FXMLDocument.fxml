@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="351.0" prefWidth="393.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ComboBox.FXMLDocumentController">
+   <children>
+      <Button fx:id="inserir" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#inserir" prefHeight="25.0" prefWidth="64.0" text="Inserir" />
+      <Button fx:id="remover" layoutX="85.0" layoutY="14.0" mnemonicParsing="false" onAction="#remover" text="Remover" />
+      <TextField fx:id="nome" layoutX="230.0" layoutY="14.0" />
+      <TextField fx:id="profissao" layoutX="230.0" layoutY="47.0" />
+      <ComboBox fx:id="combo" layoutX="10.0" layoutY="100.0" prefWidth="150.0" promptText="Lista de clientes" />
+      <Label layoutX="188.0" layoutY="18.0" text="Nome" />
+      <Label layoutX="173.0" layoutY="51.0" text="Profissão" />
+      <Button layoutX="171.0" layoutY="100.0" mnemonicParsing="false" onAction="#adiconarNaLista" prefHeight="25.0" prefWidth="110.0" text="Adicionar na lista" />
+      <ListView fx:id="listView" layoutX="10.0" layoutY="135.0" prefHeight="200.0" prefWidth="200.0" />
+      <Button layoutX="221.0" layoutY="210.0" mnemonicParsing="false" onAction="#removerLista" text="Remover" />
+   </children>
+</AnchorPane>

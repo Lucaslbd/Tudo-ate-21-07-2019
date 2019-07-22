@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+   
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFuncionario.carregar()}" type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+     
+    
+    <ui:define name="menu">
+       <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+           <p:dataTable id="tabela" widgetVar="table" value="#{MBFuncionario.listaFuncionarios}" filteredValue="#{MBFuncionario.listaFuncionariosFiltrados}" var="item" paginator="true" rows="11" emptyMessage="Nenhum registro encontrado">
+             <f:facet name="header">
+                    <h:outputText value="Listagem de funcionarios"/>
+             </f:facet>
+            <p:column headerText="Codigo">
+                 <h:outputText value="#{item.codigo}"/>
+            </p:column>
+               <p:column headerText="Nome" filterBy="#{item.nome}" filterStyle="max-width:150px;">
+                 <h:outputText value="#{item.nome}" />
+            </p:column>
+               <p:column headerText="CPF" filterBy="#{item.cpf}" filterStyle="max-width:150px;">
+                <h:outputText value="#{item.cpf}"/>
+            </p:column>
+               <p:column headerText="Função" filterBy="#{item.funcao}" filterStyle="max-width:150px;">
+                <h:outputText value="#{item.funcao}"/>
+            </p:column>
+             <p:column headerText="Opções">
+                <p:commandButton icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir">
+                    <f:setPropertyActionListener target="#{MBFuncionario.funcionario}" value="#{item}"/> 
+                </p:commandButton>
+                <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar">
+                    <f:setPropertyActionListener target="#{MBFuncionario.funcionario}" value="#{item}"/>
+               </p:commandButton>
+            </p:column>
+        </p:dataTable>
+    </h:form>
+         <h:form>                     
+             <center><p:commandButton value="Novo" style="width:99%; background-color:yellowgreen" actionListener="#{MBFuncionario.renovarObjeto()}" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de fabricante" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBFuncionario.funcionario.nome}" size="30" maxlength="30" required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask id="cpf" mask="999.999.999-99"  value="#{MBFuncionario.funcionario.cpf}" required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Função"/>
+                    <p:selectOneMenu value="#{MBFuncionario.funcionario.funcao}"  style="">
+                        <f:selectItem itemLabel="Administrador" itemValue="Administrador"/>
+                    <f:selectItem itemLabel="Gerente" itemValue="Gerente"/>
+                    <f:selectItem itemLabel="Balconista" itemValue="Balconista"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Senha" for="senha" />
+                    <p:password maxlength="8" size="30" id="senha" value="#{MBFuncionario.funcionario.senha}" required="true" requiredMessage="O campo senha é obrigatorio"/>
+                 </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBFuncionario.salvar()}" oncomplete="verificar(xhr, status, args, 'dlgNovo','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração do funcionario" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBFuncionario.funcionario.codigo}"/>
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" size="30" maxlength="30" value="#{MBFuncionario.funcionario.nome}" required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask id="cpf" mask="999.999.999-99"  value="#{MBFuncionario.funcionario.cpf}" required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Função"/>
+                    <p:selectOneMenu value="#{MBFuncionario.funcionario.funcao}" style="">
+                        <f:selectItem itemLabel="Administrador" itemValue="Administrador"/>
+                        <f:selectItem itemLabel="Gerente" itemValue="Gerente"/>
+                        <f:selectItem itemLabel="Balconista" itemValue="Balconista"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Senha" for="senha"/>
+                    <p:password maxlength="8" size="10" id="senha" value="#{MBFuncionario.funcionario.senha}" required="true" requiredMessage="O campo senha é obrigatorio" />
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBFuncionario.alterar()}" oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão do fabricante" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBFuncionario.funcionario.codigo}"/>
+                    <h:outputText value="Nome"/>
+                    <h:outputText value="#{MBFuncionario.funcionario.nome}"/>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" actionListener="#{MBFuncionario.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+         <!--Final formulario excluir-->
+    </ui:define>     
+      
+</ui:composition>
+

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+    <h:form id="menuPrincipal">
+        <p:menubar id="painelPrincipal">
+            <p:submenu label="Arquivo">                
+                <p:menuitem value="Tela principal" outcome="principal.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>
+                <p:menuitem value="Sair do sistema" action="#{MBAutenticacao.sair()}" update=":msgGlobal"/>                 
+            </p:submenu> 
+            <p:submenu label="Cadastros">                
+                <p:menuitem value="Clientes" outcome="clientes.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>    
+                <p:menuitem value="Funcionários" outcome="funcionarios.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>
+                <p:menuitem value="Fornecedores" outcome="fornecedor.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>   
+            </p:submenu>           
+            <p:submenu label="Registros">                
+                <p:menuitem value="Vendas" outcome="venda.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>
+                <p:menuitem value="Gastos" outcome="gastos.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>              
+                <p:menuitem value="Lembretes" outcome="lembretes.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>
+            </p:submenu> 
+            <p:submenu label="Viagens">                          
+                <p:menuitem value="Administrar viagens" outcome="grupo.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>  
+                <p:menuitem value="Administrar passageiros" outcome="passageiro.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>
+            </p:submenu>  
+            <p:submenu label="Controle">                
+                <p:menuitem value="Boletos" outcome="Boleto.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>                  
+                <p:menuitem  value="Comissões a receber" outcome="pagamentos_receber" actionListener="#{System.gc()}" update=":msgGlobal"/>  
+                <p:menuitem  value="Checkin de clientes" outcome="chekin.xhtml" actionListener="#{System.gc()}" update=":msgGlobal"/>  
+            </p:submenu>  
+            <p:submenu label="Gráficos">                
+                <p:menuitem value="Lucratividade" outcome="grafico_lucratividade" actionListener="#{System.gc()}" update=":msgGlobal"/> 
+                <p:menuitem value="Gastos" outcome="grafico_gastos" actionListener="#{System.gc()}" update=":msgGlobal"/> 
+            </p:submenu>  
+        </p:menubar>
+    </h:form>  
+</ui:composition>

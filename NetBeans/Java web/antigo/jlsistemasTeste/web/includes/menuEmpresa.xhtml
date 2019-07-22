@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+    <h:form>
+        <p:menubar>
+            <p:submenu label="Sair do sistema"> 
+                <p:menuitem value="Sair" action="#{MBAutenticacao.sair()}"/>              
+            </p:submenu>
+            <p:submenu label="Dados cadastrais"> 
+                <p:menuitem value="Dados cadastrais" onclick="PF('dlgMais').show();" update=":dados"/>
+                <p:menuitem value="Alterar cadastro" actionListener="#{MBEmpresa.preencheEmpresa()}" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar"/>                
+            </p:submenu>         
+            <p:submenu label="Imprimir mensalidade"> 
+                <p:menuitem value="Imprimir mensalidade" actionListener="#{MBboleto.deixaNulo()}" oncomplete="PF('dlgMensalidade').show();" update=":f:mensalidade" title="Imprimir mensalidade"/>
+            </p:submenu>            
+            <p:submenu label="Registrar usuário"> 
+                <p:menuitem value="Registrar usuário" actionListener="#{MBUsuario.atualizarObjeto()}" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/>
+            </p:submenu>
+            <p:submenu label="Dowload do java"> 
+                <p:menuitem value="Dowload do java" actionListener="#{MBSistema.deixaNulo()}" oncomplete="PF('dlgJava').show();" update=":formJava:painelJava"/>
+            </p:submenu>
+            <p:submenu label="Postar comentário"> 
+                <p:menuitem value="Postar comentário" actionListener="#{MBComentario.atualizarObjeto()}" oncomplete="PF('dlgComentario').show();" update=":formComentario:painelComentario"/>
+            </p:submenu>
+        </p:menubar>
+    </h:form>
+
+    <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de dados cadastrais" modal="true" appendTo="@(body)">
+        <h:form id="frmAlterar">
+            <h:panelGrid columns="2" id="panelAlterar">
+                <p:outputLabel value="Codigo"/>
+                <h:outputText value="#{MBEmpresa.empresa.codigo}"/>
+                <p:outputLabel value="Nome"/>
+                <p:inputText value="#{MBEmpresa.empresa.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Cnpj"/>
+                <p:inputMask  mask="99.999.999/9999-99" value="#{MBEmpresa.empresa.cnpj}" size="30"  required="true" requiredMessage="O campo cnpj é obrigatorio" autocomplete="off"/>                    
+                <p:outputLabel value="Email"/>
+                <p:inputText value="#{MBEmpresa.empresa.email}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Fone"/>
+                <p:inputMask  mask="(999) 9 9999-9999" value="#{MBEmpresa.empresa.telefone}" size="30"  required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Estado"/>
+                <p:selectOneMenu value="#{MBEmpresa.empresa.estado}">
+                    <f:selectItem itemLabel="Acre" itemValue="AC"/>      
+                    <f:selectItem itemLabel="Alagoas" itemValue="AL"/>   
+                    <f:selectItem itemLabel="Amapá" itemValue="AP"/>      
+                    <f:selectItem itemLabel="Amazonas" itemValue="AM"/>   
+                    <f:selectItem itemLabel="Bahia" itemValue="BA"/>      
+                    <f:selectItem itemLabel="Ceará" itemValue="CE"/>   
+                    <f:selectItem itemLabel="Distrito Federal" itemValue="DF"/>      
+                    <f:selectItem itemLabel="Espirito Santo" itemValue="ES"/>   
+                    <f:selectItem itemLabel="Goiás" itemValue="GO"/>      
+                    <f:selectItem itemLabel="Maranhão" itemValue="MA"/>   
+                    <f:selectItem itemLabel="Mato Grosso" itemValue="MT"/>      
+                    <f:selectItem itemLabel="Mato Grosso do Sul" itemValue="MS"/>   
+                    <f:selectItem itemLabel="Minas Gerais" itemValue="MG"/>      
+                    <f:selectItem itemLabel="Pará" itemValue="PA"/>   
+                    <f:selectItem itemLabel="Paraiba" itemValue="PB"/>      
+                    <f:selectItem itemLabel="Paraná" itemValue="PR"/>   
+                    <f:selectItem itemLabel="Pernanbuco" itemValue="PE"/>      
+                    <f:selectItem itemLabel="Piauí" itemValue="PI"/>   
+                    <f:selectItem itemLabel="Rio de Janeiro" itemValue="RJ"/>      
+                    <f:selectItem itemLabel="Rio Grande do Norte" itemValue="RN"/>   
+                    <f:selectItem itemLabel="Rio Grande do Sul" itemValue="RS"/>      
+                    <f:selectItem itemLabel="Rondônia" itemValue="RO"/>   
+                    <f:selectItem itemLabel="Roraima" itemValue="RR"/>      
+                    <f:selectItem itemLabel="Santa Catarina" itemValue="SC"/>   
+                    <f:selectItem itemLabel="São Paulo" itemValue="SP"/>      
+                    <f:selectItem itemLabel="Sergipe" itemValue="SE"/>   
+                    <f:selectItem itemLabel="Tocantins" itemValue="TO"/>                              
+                </p:selectOneMenu>                    
+                <p:outputLabel value="Cidade"/>
+                <p:inputText value="#{MBEmpresa.empresa.cidade}" size="30"  required="true" requiredMessage="O campo cidade é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Bairro"/>
+                <p:inputText value="#{MBEmpresa.empresa.bairro}" size="30"  required="true" requiredMessage="O campo bairro é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Rua"/>
+                <p:inputText value="#{MBEmpresa.empresa.rua}" size="30"  required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Numero"/>
+                <p:inputText value="#{MBEmpresa.empresa.numero}" size="30"  required="true" requiredMessage="O campo numero é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Cep"/>
+                <p:inputText value="#{MBEmpresa.empresa.cep}" size="30"  required="true" requiredMessage="O campo cep é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Senha"/>
+                <p:password value="#{MBEmpresa.empresa.senha}" size="30" maxlength="30" required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off"/>
+            </h:panelGrid>  
+            <center><h:panelGrid columns="2">
+                    <p:commandButton value="Salvar" title="Confirmar alterações" id="editar" actionListener="#{MBEmpresa.alterar2()}"  oncomplete="verificar2(xhr, status, args, 'dlgAlterar')" update=":dados :frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                        <p:resetInput target="panelAlterar"/>
+                    </p:commandButton>
+                </h:panelGrid></center>
+        </h:form> 
+        <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+    </p:dialog>
+
+    <p:dialog widgetVar="dlgMais" closable="true" draggable="false" resizable="false" header="Dados cadastrais" modal="true" appendTo="@(body)">
+        <p:panelGrid id="dados" columns="2">
+            <h:outputLabel value="Empresa:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.nome}" style="text-align: right"/>           
+            <p:outputLabel value="Cnpj:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.cnpj}"/>
+            <p:outputLabel value="Estado:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.estado}"/>           
+            <p:outputLabel value="Cidade:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.cidade}"/>
+            <p:outputLabel value="Bairro:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.bairro}"/>
+            <p:outputLabel value="Rua:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.rua}"/>
+            <p:outputLabel value="N°:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.numero}"/>
+            <p:outputLabel value="Cep:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.cep}"/>
+            <p:outputLabel value="Email:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.email}"/>
+            <p:outputLabel value="Fone:"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.telefone}"/>
+            <p:outputLabel value="Mensalidade: R$"/>
+            <p:outputLabel value="#{MBAutenticacao.empresa.mensalidade}">
+                <f:convertNumber pattern="0.00"/> 
+            </p:outputLabel>
+        </p:panelGrid>          
+    </p:dialog>      
+
+    <p:dialog widgetVar="dlgMensalidade" width="50%" closable="true" draggable="false" resizable="false" header="Imprimir mensalidade" modal="true" appendTo="@(body)">
+        <center><h:outputLabel value="Selecione um boleto para ativar o botão de dowload" style="font-size:20px"/></center>        
+        <div style="border:1px solid black; background-color: beige; margin-top:1%"> 
+            <center>
+                <p:outputLabel value="Mantenha suas mensalidades em dia para evitar o bloqueio de sua conta." style="color: red; margin-left:1%"/>
+                <h:form style="margin-left:2%" id="f">           
+                    <h:panelGrid columns="2" id="mensalidade" style="margin: 2%">                 
+                        <p:selectOneMenu value="#{MBboleto.arquivo}">
+                            <p:ajax event="change" listener="#{MBboleto.fileDownloadView()}" update=":f :msgGlobal"/>
+                            <f:selectItem itemLabel="Escolha um boleto" itemValue="#{null}"/>  
+                            <f:selectItems value="#{MBboleto.boletos}" var="boleto"  itemLabel="#{boleto}" itemValue="#{boleto}"/>                               
+                        </p:selectOneMenu>
+                        <p:commandButton id="file" value="Download" ajax="false" onclick="PF('dlgMensalidade').hide();" icon="ui-icon-arrowthick-1-s" rendered="#{MBboleto.rendered}">
+                            <p:fileDownload value="#{MBboleto.file}"/>
+                        </p:commandButton>                
+                    </h:panelGrid>                 
+                </h:form> 
+            </center>
+        </div>      
+    </p:dialog>    
+
+    <p:dialog widgetVar="dlgJava" width="50%" closable="true" draggable="false" resizable="false" header="Dowload do Java" modal="true" appendTo="@(body)">
+        <center><h:outputLabel value="Selecione uma das opções para ativar o botão de dowload" style="font-size:20px"/></center>        
+        <div style="border:1px solid black; background-color: beige; margin-top:1%"> 
+            <center>
+                <p:outputLabel value="Caso não tenha sucesso na instalação do java entrar em contato com a empresa." style="color: red; margin-left:1%"/>
+                <h:form style="margin-left:2%" id="formJava">           
+                    <h:panelGrid columns="2" id="painelJava" style="margin: 2%">                 
+                        <p:selectOneMenu value="#{MBSistema.java}">
+                            <p:ajax event="change" listener="#{MBSistema.fileDownloadView()}" update=":formJava :msgGlobal"/>
+                            <f:selectItem itemLabel="Escolha uma das opções" itemValue="#{null}"/>
+                            <f:selectItem itemLabel="Windows 32 bits : Opção 1" itemValue="321"/>
+                            <f:selectItem itemLabel="Windows 32 bits : Opção 2" itemValue="322"/>
+                            <f:selectItem itemLabel="Windows 32 bits : Opção 3" itemValue="323"/>
+                            <f:selectItem itemLabel="Windows 64 bits : Opção 1" itemValue="641"/>
+                            <f:selectItem itemLabel="Windows 64 bits : Opção 2" itemValue="642"/>
+                        </p:selectOneMenu>
+                        <p:commandButton id="file" value="Download" ajax="false" icon="ui-icon-arrowthick-1-s" onclick="PF('dlgJava').hide();"  rendered="#{MBSistema.rendered}">
+                            <p:fileDownload value="#{MBSistema.file}"/>
+                        </p:commandButton>                
+                    </h:panelGrid>                 
+                </h:form> 
+            </center>
+        </div>      
+    </p:dialog>
+
+    <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de usuário" modal="true" appendTo="@(body)">
+        <h:form id="frmNovo">
+            <h:panelGrid columns="2" id="panelNovo">
+                <p:outputLabel value="Nome" for="nome"/>
+                <p:inputText id="nome" value="#{MBUsuario.usuario.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Cpf" for="cpf"/>
+                <p:inputMask id="cpf" mask="999.999.999-99" value="#{MBUsuario.usuario.cpf}" size="30"  required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                <p:outputLabel value="Tipo" for="tipo"/>
+                <p:selectOneMenu id="tipo" value="#{MBUsuario.usuario.tipo}">
+                    <f:selectItem itemLabel="Administrador(a)" itemValue="Administrador(a)"/>
+                    <f:selectItem itemLabel="Usuário(a)" itemValue="Usuário(a)"/>                                          
+                </p:selectOneMenu>                   
+                <p:outputLabel value="Senha" for="senha"/>
+                <p:password value="#{MBUsuario.usuario.senha}" id="senha" size="30" maxlength="15" required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off"/>
+            </h:panelGrid>  
+            <center><h:panelGrid columns="2">
+                    <p:commandButton value="Salvar" title="Confirmar cadastro" id="salvar" actionListener="#{MBUsuario.salvar()}"  oncomplete="verificar2(xhr, status, args, 'dlgNovo')" update=":msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                        <p:resetInput target="panelNovo"/>
+                    </p:commandButton>
+                </h:panelGrid></center>
+        </h:form>  
+        <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+    </p:dialog>
+
+    <p:dialog widgetVar="dlgComentario" closable="true" draggable="false" resizable="false" header="Postar comentário" modal="true" appendTo="@(body)">
+        <h:form style="margin-left:2%" id="formComentario">           
+            <h:panelGrid columns="1" id="painelComentario">                 
+                <p:outputLabel value="Comentário"/>
+                <p:inputTextarea rows="10" cols="50" value="#{MBComentario.comentario.mensagem}" required="true" requiredMessage="O campo mensagem é obrigatório"/>
+                <p:commandButton value="Postar" id="post" actionListener="#{MBComentario.salvar()}" oncomplete="verificar2(xhr, status, args, 'dlgComentario')" update=":msgGlobal"/>
+            </h:panelGrid>                 
+        </h:form>
+        <p:blockUI block="formComentario" trigger="formComentario:post">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+    </p:dialog>
+</ui:composition>

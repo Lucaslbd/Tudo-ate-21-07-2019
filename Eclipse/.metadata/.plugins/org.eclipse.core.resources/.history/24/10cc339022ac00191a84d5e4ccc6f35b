@@ -1,0 +1,8 @@
+function validar() {
+	var valor = document.getElementById("valor");
+	if (valor == "R$  ") {
+		alert("Preencha o campo valor do produto");
+		valor.focus();
+		return false;
+	}
+}

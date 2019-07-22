@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">           
+
+        <center>
+            <h:panelGrid id="pnlPesquisa" columns="5" style="margin: 1%;">  
+                <h:form id="formPesquisa" >
+                    <h:outputText value="Inicio: "/>
+                    <p:calendar  value="#{MBCartao.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                               
+                    <h:outputText value=" Final: "/>
+                    <p:calendar value="#{MBCartao.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                              
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBCartao.listarCartoes()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal" style="margin-left: 5px"/>                       
+                </h:form>
+            </h:panelGrid>                
+        </center>                 
+        <h:form id="frmTabela">              
+            <p:dataTable id="tabela" widgetVar="table" rowIndexVar="numero" value="#{MBCartao.listaCartao}" filteredValue="#{MBCartao.listaCartaoFiltrada}" var="item" paginator="true"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Controle de pagamentos em cartão"/>
+                </f:facet>
+                <p:column headerText="Data">
+                    <h:outputText value="#{item.venda.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column> 
+                <p:column headerText="Tipo" filterBy="#{item.descricao}">
+                    <h:outputText value="#{item.descricao}"/>
+                </p:column>
+                <p:column headerText="Valor da venda">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.venda.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                  
+                </p:column>
+                <p:column headerText="Taxa">                   
+                    <h:outputText value="#{item.venda.desconto}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText> 
+                    <h:outputText value=" %"/>
+                </p:column>
+                <p:column headerText="Desconto">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.venda.valor * (item.venda.desconto / 100)}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                  
+                </p:column>                 
+                <p:column headerText="A receber">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.venda.valor - (item.venda.valor * (item.venda.desconto / 100))}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                  
+                </p:column> 
+                <p:column headerText="Situação" filterBy="#{item.situacao}">                  
+                    <h:outputText value="#{item.situacao}"/>                        
+                </p:column>
+                <p:column headerText="Opções"  width="15%">                    
+                    <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Registrar recebimento" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCartao.cartao}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:commandButton  icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Excluir cartão" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCartao.cartao}" value="#{item}"/>
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>  
+        <h:form>
+            <center><h:panelGrid columns="6" style="margin-top: 1%">
+                    <p:commandButton value="Somar venda" actionListener="#{MBCartao.somarVenda()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar desconto" actionListener="#{MBCartao.somarDesconto()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar a receber" actionListener="#{MBCartao.somarAreceber()}"  update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Registros" actionListener="#{MBCartao.somarRegistros()}"  update=":msgGlobal" style="background-color:yellowgreen"/>
+                </h:panelGrid></center>
+        </h:form> 
+
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Exclusão de cliente" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid id="panelAlterar" columns="2">
+                    <h:outputText value="Data:"/>
+                    <h:outputText value="#{MBCartao.cartao.venda.data}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBCartao.cartao.descricao}" />
+                    <h:outputText value="Situação"/>
+                    <h:outputText value="#{MBCartao.cartao.situacao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Alterar" id="alterar" title="Confirmar recebimento"  actionListener="#{MBCartao.registrarRecebimento()}"  oncomplete="PF('dlgAlterar').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgAlterar').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:alterar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de cliente" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Data:"/>
+                    <h:outputText value="#{MBCartao.cartao.venda.data}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBCartao.cartao.descricao}" />
+                    <h:outputText value="Situação"/>
+                    <h:outputText value="#{MBCartao.cartao.situacao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBCartao.excluirCartao()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+

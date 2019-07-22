@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">    
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">   
+        <center> <h:form id="formPesquisa">
+                <h:panelGrid id="pnlPesquisa" columns="5">
+                    <h:outputText value="Inicio:"/>
+                    <p:calendar  value="#{MBVenda.data}"/>                                               
+                    <h:outputText value="Final:"/>
+                    <p:calendar value="#{MBVenda.data2}"/>                                              
+                    <p:commandButton value="Pesquisar" actionListener="#{MBVenda.listarPorData()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal"/>                       
+                </h:panelGrid>                
+            </h:form></center>
+        <p:separator/>       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBVenda.listaVenda}" filteredValue="#{MBVenda.listaVendaFiltrada}" var="venda" paginator="true" paginatorPosition="bottom" rows="10" rowIndexVar="numero" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Listagem de vendas"/>
+                </f:facet>   
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{numero +1}"/>
+                </p:column>
+                <p:column headerText="Codigo da venda">
+                    <h:outputText value="#{venda.codigo}"/>
+                </p:column>
+                <p:column headerText="Funcionario" filterBy="#{venda.funcionario.nome}" filterMatchMode="exact">
+                    <f:facet name="filter">
+                        <p:selectOneMenu onchange="PF('table').filter()"> 
+                            <p:ajax event="change" listener="#{MBVenda.valorFiltrado()}" update=":frmTabela:tabela :msgGlobal"/>  
+                            <f:selectItem itemLabel="Selecione um funcionario" itemValue="#{null}" noSelectionOption="true" />
+                            <f:selectItems  value="#{MBVenda.listaFuncionario}" var="Mostrar" itemValue="#{Mostrar.nome}" itemLabel="#{Mostrar.nome}"/>                                                      
+                        </p:selectOneMenu>
+                    </f:facet>                    
+                    <h:outputText value="#{venda.funcionario.nome}"/>
+                </p:column>
+                <p:column headerText="Data" >
+                    <h:outputText value="#{venda.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor">
+                    <h:outputText value="#{venda.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                    <f:facet name="footer">                        
+                        <p:outputLabel value="Total R$ "/>
+                        <h:outputText value="#{MBVenda.valorPagar}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>                       
+                    </f:facet>
+                </p:column>                
+                <p:column headerText="Opções" width="15%">
+                    <p:commandButton icon="ui-icon-trash"  oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir">
+                        <f:setPropertyActionListener target="#{MBVenda.venda}" value="#{venda}"/>
+                    </p:commandButton>                    
+                    <p:commandButton icon="ui-icon-search" actionListener="#{MBItem.listaPorVenda(venda.codigo)}" oncomplete="PF('dlgItem').show();" update=":frmTabela2:tabela2 :msgGlobal">
+                        <f:setPropertyActionListener target="#{MBVenda.venda}" value="#{venda}"/>
+                    </p:commandButton>   
+                    <p:commandButton icon="ui-icon-plusthick" actionListener="#{MBFechamento.listaPorVenda(venda.codigo)}" oncomplete="PF('dlgFechamento').show();" update=":frmTabela3:tabela3 :msgGlobal">
+                        <f:setPropertyActionListener target="#{MBVenda.venda}" value="#{venda}"/>
+                    </p:commandButton>                       
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>            
+
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão do fabricante" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBVenda.venda.codigo}" />
+                    <h:outputText value="Funcionario:"/>
+                    <h:outputText value="#{MBVenda.venda.funcionario.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" actionListener="#{MBVenda.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').filter();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        <!--Final formulario excluir-->
+        <p:dialog widgetVar="dlgItem" closable="true" draggable="false" resizable="false" header="Lista de itens" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela2">             
+                <p:dataTable id="tabela2" widgetVar="table2" value="#{MBItem.listaItem}" var="item" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                    <f:facet name="header">
+                        <h:outputText value="Listagem de itens da venda"/>
+                    </f:facet>
+                    <p:column headerText="Produto">
+                        <h:outputText value="#{item.produto.descricao}"/>
+                    </p:column>
+                    <p:column headerText="Fabricante">
+                        <h:outputText value="#{item.produto.fabricante.nome}"/>
+                    </p:column>
+                    <p:column headerText="Quantidade">
+                        <h:outputText value="#{item.quantidade}"/>
+                    </p:column>
+                    <p:column headerText="Valor Parcial">
+                        <h:outputText value="#{item.valor}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText> 
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="Total R$ "/>
+                            <h:outputText value="#{MBVenda.venda.valor}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>                       
+                        </f:facet>
+                    </p:column>                
+                    <p:column headerText="codigo da venda">
+                        <h:outputText value="#{item.venda.codigo}"/>
+                    </p:column>                   
+                </p:dataTable>
+            </h:form>
+        </p:dialog>      
+
+        <p:dialog widgetVar="dlgFechamento" closable="true" draggable="false" resizable="false" header="Forma de pagamento" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela3">             
+                <p:dataTable id="tabela3" widgetVar="table3" value="#{MBFechamento.listaFechamento}" var="item" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                    <f:facet name="header">
+                        <h:outputText value="Forma de pagamento da venda"/>
+                    </f:facet>
+                    <p:column headerText="Forma de pagamento">
+                        <h:outputText value="#{item.pagamento}"/>
+                    </p:column>
+                    <p:column headerText="Valor">
+                        <h:outputText value="#{item.valor_fechamento}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="Total R$ "/>
+                            <h:outputText value="#{MBVenda.venda.valor}">
+                                <f:convertNumber pattern="0.00"/>
+                            </h:outputText>                       
+                        </f:facet>
+                    </p:column>                                   
+                </p:dataTable>
+            </h:form>
+        </p:dialog>      
+
+    </ui:define>
+</ui:composition>
+

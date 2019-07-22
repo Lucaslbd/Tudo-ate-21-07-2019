@@ -1,0 +1,4 @@
+function pesquisar(){
+	var form = document.getElementById("texto");
+	form.submit();
+}

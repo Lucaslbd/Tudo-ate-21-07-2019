@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBSistema.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">        
+        <h:form id="registrar"> 
+            <h:panelGrid >
+                <p:button value="Registrar" outcome="SistemaOpcoes.xhtml" title="Registrar" class="botao">
+                    <f:param name="acao" value="novo"/>
+                </p:button>
+            </h:panelGrid>
+        </h:form>   
+        <h:form id="frmTabela">             
+            <p:dataGrid value="#{MBSistema.lista}" var="item" columns="1" rows="1" paginator="true" paginatorPosition="bottom" layout="grid" emptyMessage="Nenhum registro encontrado">
+                <p:panel style="text-align: center; background-color: beige">
+                    <h:panelGrid columns="1" style="background-color: #3E637E; margin: 0 auto;">
+                        <h:panelGrid columns="2">                        
+                            <p:graphicImage library="uploadFotos" name="#{item.codigo}.png" width="100px" height="100px"/> 
+                            <h:panelGrid columns="1" style="color: white; font-weight: bold; font-size: 2em">
+                                <h:outputText value="Nome: #{item.nome}"/>                       
+                                <h:outputText value="Versão: #{item.versao}"/>                        
+                                <h:outputText value="Ramo: #{item.ramo}"/>                                             
+                            </h:panelGrid>
+                        </h:panelGrid>                   
+                        <h:panelGrid columns="1">
+                            <h:inputTextarea rows="6" cols="70" readonly="true" value="#{item.descricao}" style="resize: none; border: none; text-align: center; color: white; background-color: #213D51;"/>                   
+                            <h:panelGrid columns="4">
+                                <p:commandButton icon=" ui-icon-document" ajax="false" title="Baixar Documentação" class="botao1">      
+                                    <p:fileDownload value="#{MBSistema.dowloadTxt(item.codigo,item.nome)}"/>
+                                </p:commandButton>                             
+                                <p:commandButton icon="ui-icon-arrowthick-1-s" ajax="false" title="Baixar Software" class="botao1">
+                                    <p:fileDownload value="#{MBSistema.dowloadSistema(item.codigo,item.nome)}"/>
+                                </p:commandButton>
+                                <p:button icon="ui-icon-trash" title="Remover" outcome="SistemaOpcoes.xhtml" class="botao1">
+                                    <f:param name="acao" value="excluir"/>
+                                    <f:param name="codigo" value="#{item.codigo}"/>
+                                </p:button>
+                                <p:button icon="ui-icon-pencil" title="Alterar" outcome="SistemaOpcoes.xhtml" class="botao1">
+                                    <f:param name="acao" value="editar"/>
+                                    <f:param name="codigo" value="#{item.codigo}"/>
+                                </p:button>   
+                            </h:panelGrid>
+                        </h:panelGrid>
+                    </h:panelGrid>
+                </p:panel>
+            </p:dataGrid>
+        </h:form>      
+    </ui:define>
+</ui:composition>

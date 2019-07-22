@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBFornecedor.acao}"/>  
+            <f:viewParam name="codigo" value="#{MBFornecedor.codigo}"/>  
+            <f:event listener="#{MBFornecedor.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo">  
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Cadastro de fornecedor"/>
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">            
+            <p:panelGrid columns="1" style="padding: 30px; margin: 20px">
+                <h:panelGrid columns="2">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Nome"/>
+                        <p:inputText value="#{MBFornecedor.fornecedor.nome}" size="40" maxlength="60" required="true" requiredMessage="Preencha o campo nome" autocomplete="off" placeholder="Nome"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Telefone"/>
+                        <p:inputMask value="#{MBFornecedor.fornecedor.telefone}" mask="(99) 9 9999-9999" size="40" required="true" requiredMessage="Preencha o campo telefone" autocomplete="off" placeholder="Telefone"/>
+                    </h:panelGrid>                    
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Email"/>
+                        <p:inputText value="#{MBFornecedor.fornecedor.email}" size="40" maxlength="60" placeholder="Email" required="true" requiredMessage="Preencha o campo e-mail" autocomplete="off"/>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Tempo de pagamento"/>
+                        <p:inputText value="#{MBFornecedor.fornecedor.tempoPagamento}" size="40" maxlength="4" required="true" requiredMessage="Preencha o campo tempo de pagamento" autocomplete="off" placeholder="Tempo de pagamento" converterMessage="O campo tempo de pagamento somente aceita numeros" validatorMessage="O campo tempo de pagamento não aceita valores menores que 0">
+                            <f:validateDoubleRange minimum="0"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Porcentagem da comissão"/>
+                        <p:inputText value="#{MBFornecedor.fornecedor.porcentagemPagamento}" size="40" maxlength="5" required="true" requiredMessage="Preencha o campo salário" autocomplete="off" placeholder="Porcentagem de pagamento" converterMessage="O campo porcentagem somente aceita numeros" validatorMessage="O campo porcentagem não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                            <f:convertNumber pattern="0.00"/>
+                        </p:inputText>
+                    </h:panelGrid>         
+                    <p:outputLabel value=""/>
+                    <h:panelGrid columns="5" style="margin-top: 10px">
+                        <p:commandButton value="Salvar" id="salvar" icon="ui-icon-disk" title="Salvar" actionListener="#{MBFornecedor.salvar()}" update=":msgGlobal" rendered="#{MBFornecedor.acao == 1}"/>
+                        <p:commandButton value="Alterar" icon="ui-icon-pencil" title="Alterar" actionListener="#{MBFornecedor.alterar()}" update=":msgGlobal" rendered="#{MBFornecedor.acao == 3}"/>
+                        <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" title="Voltar" outcome="fornecedor.xhtml"/>
+                    </h:panelGrid>
+                </h:panelGrid>
+            </p:panelGrid>    
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

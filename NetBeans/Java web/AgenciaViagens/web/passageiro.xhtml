@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBPassageiro.buscarGrupos()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:form id="p">
+            <h:panelGrid columns="3">               
+                <p:button value="Add pax" icon="ui-icon-plusthick" title="Registrar" outcome="passageiro_cadastro.xhtml">
+                    <f:param name="acao" value="#{1}"/>
+                </p:button>                 
+                <p:selectOneMenu id="h" filter="true" value="#{MBPassageiro.codigo}" required="true" requiredMessage="Selecione um grupo"  style="margin: 0 auto">
+                    <f:selectItem itemLabel="Selecione um grupo" itemValue="#{null}"/>
+                    <f:selectItems value="#{MBPassageiro.listaGrupo}" var="grupo" itemValue="#{grupo.codigo}" itemLabel="#{grupo.nome_grupo}"/>                    
+                    <p:ajax event="change" listener="#{MBPassageiro.listar()}" update=":frmTabela:tabela :msgGlobal"/>
+                </p:selectOneMenu>                
+            </h:panelGrid>    
+            <p:blockUI block="frmTabela" trigger="p:h">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI> 
+        </h:form>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBPassageiro.lista}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Lista de passageiros"/>
+                </f:facet>  
+                <p:column headerText="Nome">
+                    <h:outputText value="#{item.cliente.nome}"/>                      
+                </p:column>
+                <p:column headerText="RG" width="11%">
+                    <h:outputText value="#{item.cliente.rg}"/>
+                </p:column>
+                <p:column headerText="Cpf" width="12%">
+                    <h:outputText value="#{item.cliente.cpf}"/>                     
+                </p:column>  
+                <p:column headerText="Telefone" width="13%">
+                    <h:outputText value="#{item.cliente.telefone}"/>                       
+                </p:column>  
+                <p:column headerText="Valor" width="12%">
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                    </h:outputText> 
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBPassageiro.valor}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>                 
+                </p:column> 
+                <p:column headerText="Status" width="8%">
+                    <h:outputText value="#{item.status}"/>                       
+                </p:column> 
+                <p:column headerText="Opções" width="15%">                    
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBPassageiro.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="passageiro_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button> 
+                    <p:commandButton icon="ui-icon-print" action="#{MBPassageiro.imprimirVoucher(item.codigo)}" update=":msgGlobal" title="Voucher" onclick="this.form.target = '_blank'" ajax="false" rendered="#{item.cliente.codigo == item.titular}"/>
+                    <p:commandButton icon="ui-icon-print" action="#{MBPassageiro.imprimirContrato(item.codigo)}" update=":msgGlobal" title="Contrato" onclick="this.form.target = '_blank'" ajax="false" rendered="#{item.cliente.codigo == item.titular}"/>
+                    <p:blockUI block="frmTabela" trigger="remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI>
+                </p:column>              
+            </p:dataTable>           
+        </h:form>             
+    </ui:define>    
+</ui:composition>
+

@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">    
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBBaixa.listarProdutos()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <center> <h:form id="formPesquisa">
+                <h:panelGrid id="pnlPesquisa" columns="7" style="margin-bottom: 1%">
+                    <h:outputText value="Inicio:"/>
+                    <p:calendar  value="#{MBBaixa.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                               
+                    <h:outputText value="Final:"/>
+                    <p:calendar value="#{MBBaixa.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                              
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBBaixa.listar()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal"/>                       
+                    <p:commandButton value="Somar valor" actionListener="#{MBBaixa.somarValor()}" update=":msgGlobal" title="Total de gastos na lista" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar qtd" actionListener="#{MBBaixa.somarQuantidade()}" update=":msgGlobal" title="Total de gastos na lista" style="background-color:yellowgreen"/>
+                </h:panelGrid>                
+            </h:form></center>
+
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBBaixa.lista}" filteredValue="#{MBBaixa.listaFiltrada}" var="item" paginator="true"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de baixas de produtos"/>
+                </f:facet>                
+                <p:column headerText="Data" width="12%">
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>                               
+                <p:column headerText="Descrição" width="15%" filterBy="#{item.descricao}" filterStyle="max-width:150px;">                                    
+                    <h:outputText value="#{item.descricao}"/>
+                </p:column>  
+                <p:column headerText="Casco" width="12%" filterBy="#{item.casco}" filterStyle="max-width:150px;">                                    
+                    <h:outputText value="#{item.casco}"/>
+                </p:column>  
+                <p:column headerText="Valor" width="12%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor * item.quantidade}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                    
+                </p:column>  
+                <p:column headerText="Quantidade" width="12%">                   
+                    <h:outputText value="#{item.quantidade}"/>                                     
+                </p:column>  
+                <p:column headerText="Produto" filterBy="#{item.preoduto.nome}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.preoduto.nome}"/>
+                </p:column>                                
+                <p:column headerText="Opções" exportable="false" width="10%">
+                    <p:commandButton  icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":dlExcluir" title="Excluir registro" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBBaixa.baixa}" value="#{item}"/>
+                    </p:commandButton>
+                </p:column>                
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBBaixa.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Registrar"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <center>
+            <h:form>
+                <h:panelGrid columns="2" style="margin-top:2%">
+
+                </h:panelGrid>
+            </h:form>
+        </center>
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Registro de baixa" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Produto" />
+                    <p:selectOneMenu value="#{MBBaixa.baixa.preoduto}" filter="true" required="true" requiredMessage="É necessario ter um produto na lista" converter="produtoConverter">
+                        <f:selectItem itemValue="#{null}" itemLabel="Escolha um produto"/>
+                        <f:selectItems value="#{MBBaixa.listaProduto}" var="produto" itemValue="#{produto}" itemLabel="#{produto.nome}"/>                    
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Casco" />
+                    <p:selectOneMenu value="#{MBBaixa.baixa.casco}">
+                        <f:selectItem itemValue="Sem casco" itemLabel="Sem casco"/> 
+                        <f:selectItem itemValue="Com casco" itemLabel="Com casco"/> 
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputText value="#{MBBaixa.baixa.descricao}" size="30"  required="true" requiredMessage="O campo descrição é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Quantidade"/>
+                    <p:inputText value="#{MBBaixa.baixa.quantidade}" size="30"  required="true" requiredMessage="O campo quantidade é obrigatorio" autocomplete="off" maxlength="8" converterMessage="O campo quantidade somente aceita numeros" validatorMessage="O campo quantidade não aceita valores menores que 1">
+                        <f:validateDoubleRange minimum="1"/>
+                    </p:inputText>                   
+                    <p:outputLabel value="Data" />   
+                    <p:calendar value="#{MBBaixa.baixa.data}" size="30"  required="true" requiredMessage="O campo data é obrigatorio" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar baixa" id="salvar" actionListener="#{MBBaixa.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar baixa" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->      
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" id="dlExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de registro" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">                   
+                <h:panelGrid id="pnlExcluir" columns="2">        
+                    <h:outputText value="Produto:"/>
+                    <h:outputText value="#{MBBaixa.baixa.preoduto.nome}" />
+                    <h:outputText value="Data:"/>
+                    <h:outputText value="#{MBBaixa.baixa.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBBaixa.baixa.descricao}" />                    
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBBaixa.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">      
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <center> <h:form id="formPesquisa">
+                <h:panelGrid id="pnlPesquisa" columns="6" style="margin-bottom: 1%">
+                    <h:outputText value="Inicio:"/>
+                    <p:calendar  value="#{MBGastoVeiculo.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                               
+                    <h:outputText value="Final:"/>
+                    <p:calendar value="#{MBGastoVeiculo.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                              
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBGastoVeiculo.listar()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal"/>                       
+                    <p:commandButton value="Somar" actionListener="#{MBGastoVeiculo.somar()}" update=":msgGlobal" title="Total de gastos na lista" style="background-color:yellowgreen"/>
+                </h:panelGrid>                
+            </h:form></center>
+
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBGastoVeiculo.lista}" filteredValue="#{MBGastoVeiculo.listaFiltrada}" var="item" paginator="false"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de gastos com veiculos"/>
+                </f:facet>    
+                <p:column headerText="Codigo" width="10%">
+                    <h:outputText value="#{item.codigo}"/>                     
+                </p:column>  
+                <p:column headerText="Data">
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>               
+                <p:column headerText="Tipo" filterBy="#{item.tipo}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.tipo}"/>
+                </p:column>                 
+                <p:column headerText="Descrição" filterBy="#{item.descricao}" filterStyle="max-width:150px;">                                    
+                    <h:outputText value="#{item.descricao}"/>
+                </p:column>  
+                <p:column headerText="Valor">
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                    
+                </p:column>  
+                <p:column headerText="Placa" filterBy="#{item.veiculo.placa}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.veiculo.placa}"/>
+                </p:column> 
+                <p:column headerText="Modelo">
+                    <h:outputText value="#{item.veiculo.modelo}"/>
+                </p:column>                 
+                <p:column headerText="Opções" exportable="false" width="10%">
+                    <p:commandButton  icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":dlExcluir" title="Excluir registro" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBGastoVeiculo.gasto}" value="#{item}"/>
+                    </p:commandButton>
+                </p:column>                
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBGastoVeiculo.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Registrar"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Registro de gastos" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Tipo"/>
+                    <p:selectOneMenu id="tipo" value="#{MBGastoVeiculo.gasto.tipo}" filter="true">
+                        <p:ajax event="change" listener="#{MBGastoVeiculo.verKm()}" update=":frmNovo:panelNovo"/>  
+                        <f:selectItem itemLabel="Combustivel" itemValue="Combustivel"/>
+                        <f:selectItem itemLabel="Imposto" itemValue="Imposto"/>
+                        <f:selectItem itemLabel="Reparo" itemValue="Reparo"/>
+                        <f:selectItem itemLabel="Outros" itemValue="Outros"/>                        
+                    </p:selectOneMenu>
+                    <p:outputLabel value="KM" rendered="#{MBGastoVeiculo.veKm}"/>
+                    <p:inputText value="#{MBGastoVeiculo.autonomia.km}" size="30"  required="true" rendered="#{MBGastoVeiculo.veKm}" requiredMessage="O campo km é obrigatorio" autocomplete="off" maxlength="8" converterMessage="O campo km somente aceita numeros" validatorMessage="O campo km não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Litros" rendered="#{MBGastoVeiculo.veKm}"/>
+                    <p:inputText value="#{MBGastoVeiculo.autonomia.litros}" size="30"  required="true" rendered="#{MBGastoVeiculo.veKm}" requiredMessage="O campo litros é obrigatorio" autocomplete="off" maxlength="7" converterMessage="O campo litros somente aceita numeros" validatorMessage="O campo litros não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputText value="#{MBGastoVeiculo.gasto.descricao}" size="30"  required="true" requiredMessage="O campo descrição é obrigatorio" autocomplete="off" maxlength="30"/>
+                    <p:outputLabel value="Data" />   
+                    <p:calendar value="#{MBGastoVeiculo.gasto.data}" size="30"  required="true" requiredMessage="O campo data é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Valor" />
+                    <p:inputText  value="#{MBGastoVeiculo.gasto.valor}" size="30"  required="true" requiredMessage="O campo valor é obrigatorio" autocomplete="off" converterMessage="O campo valor somente aceita numeros" validatorMessage="O campo valor não aceita valores menores que 0.00" maxlength="7">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Veiculo" />
+                    <p:selectOneMenu value="#{MBGastoVeiculo.gasto.veiculo}" filter="true" required="true" requiredMessage="É necessario ter um veiculo na lista" converter="veiculoConverter">
+                        <f:selectItems value="#{MBGastoVeiculo.listaVeiculo}" var="veiculo" itemValue="#{veiculo}" itemLabel="Placa: #{veiculo.placa} Modelo: #{veiculo.modelo}"/>                    
+                    </p:selectOneMenu>                                     
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBGastoVeiculo.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+                <p:blockUI block="frmNovo" trigger="frmNovo:salvar :frmNovo:tipo">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>
+            </h:form>                
+        </p:dialog>
+        <!--Final formulario Novo-->      
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" id="dlExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de registro" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">                
+                <h:outputText value="OBS: Ao excluir um registro de abastecimento também serão removidas as entregas referente a este abastecimento" rendered="#{MBGastoVeiculo.gasto.tipo == 'Combustivel'}"/>
+                <h:panelGrid id="pnlExcluir" columns="2">                
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBGastoVeiculo.gasto.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBGastoVeiculo.gasto.descricao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBGastoVeiculo.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

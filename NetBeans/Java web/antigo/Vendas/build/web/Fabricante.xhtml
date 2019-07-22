@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFabricante.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFabricante.listaFabricantes}" filteredValue="#{MBFabricante.listaFabricantesFiltrados}" var="item" paginator="true" rows="11" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Listagem de fabricantes"/>
+                </f:facet>            
+                <p:column headerText="Codigo" width="10%">
+                    <h:outputText value="#{item.codigo}"/>
+                </p:column>
+                <p:column headerText="Nome" filterBy="#{item.nome}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.nome}"/>
+                </p:column>
+                <p:column headerText="Cnpj" width="15%">
+                    <h:outputText value="#{item.cnpj}"/>
+                </p:column>
+                <p:column headerText="Telefone" width="10%">
+                    <h:outputText value="#{item.telefone}"/>
+                </p:column>
+                <p:column headerText="E-mail">
+                    <h:outputText value="#{item.email}"/>
+                </p:column>
+                <p:column headerText="Opções" width="15%">
+                    <p:commandButton icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir">
+                        <f:setPropertyActionListener target="#{MBFabricante.fabricante}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar">
+                        <f:setPropertyActionListener target="#{MBFabricante.fabricante}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-mail-closed" oncomplete="PF('dlgEmail').show();" update=":frmEmail:panelEmail">
+                        <f:setPropertyActionListener target="#{MBFabricante.fabricante}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:commandButton icon="ui-icon-search" actionListener="#{MBProduto.listaPorFabricante(item.codigo)}" oncomplete="PF('dlgProdutos').show();" update=":frmTabela2:tabela2 :msgGlobal" />                   
+                </p:column>
+            </p:dataTable>
+        </h:form>       
+        <h:form>                     
+            <center><p:commandButton value="Novo" actionListener="#{MBFabricante.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de fabricante" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBFabricante.fabricante.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cnpj" for="cnpj"/>
+                    <p:inputMask mask="99.999.999/9999-99" id="cnpj" value="#{MBFabricante.fabricante.cnpj}" size="30"  required="true" requiredMessage="O campo cnpj é obrigatorio" autocomplete="off" maxlength="20"/>
+                    <p:outputLabel value="Fone" for="fone"/>
+                    <p:inputMask mask="999 9 9999-9999" value="#{MBFabricante.fabricante.telefone}" id="fone" size="30" maxlength="30" required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Email" for="responsavel"/>
+                    <p:inputText id="responsavel" value="#{MBFabricante.fabricante.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBFabricante.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração do fabricante" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBFabricante.fabricante.codigo}"/>
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBFabricante.fabricante.nome}" size="30" required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cnpj" for="cnpj"/>
+                    <p:inputMask mask="99.999.999/9999-99" id="cnpj" value="#{MBFabricante.fabricante.cnpj}" size="30" required="true" requiredMessage="O campo cnpj é obrigatorio" autocomplete="off" maxlength="20"/>
+                    <p:outputLabel value="Fone" for="fone"/>
+                    <p:inputMask mask="999 9 9999-9999" value="#{MBFabricante.fabricante.telefone}" id="fone" size="30" maxlength="30" required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Email" for="responsavel"/>
+                    <p:inputText id="responsavel" value="#{MBFabricante.fabricante.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBFabricante.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão do fabricante" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBFabricante.fabricante.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBFabricante.fabricante.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" actionListener="#{MBFabricante.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        <!--Final formulario excluir-->
+        <!--Inicio Formulario email-->
+        <p:dialog widgetVar="dlgEmail" closable="false" draggable="false" resizable="false" header="Enviar email" modal="true" appendTo="@(body)">
+            <h:form id="frmEmail">
+                <h:panelGrid columns="2" id="panelEmail">
+                    <p:outputLabel value="Destino"/>
+                    <h:outputText value="#{MBFabricante.fabricante.email}"/>
+                    <p:outputLabel value="Assunto" for="assunto"/>
+                    <p:inputText id="assunto" value="#{MBFabricante.assunto}" size="25" required="true" requiredMessage="O campo assunto é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Mensagem"/>
+                    <p:inputTextarea value="#{MBFabricante.email}" rows="10" style="width: 500px;" required="true" requiredMessage="Digite o corpo do email" />
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Enviar" actionListener="#{MBFabricante.enviarEmail()}" oncomplete="verificar(xhr, status, args, 'dlgEmail','table' )" update=":msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgEmail').hide();" process="@this">
+                            <p:resetInput target="panelEmail"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario email-->
+        <p:dialog widgetVar="dlgProdutos"  closable="true" draggable="false" resizable="false" header="Lista de produtos" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela2">
+                <p:commandButton value="Imprimir" type="button" icon="ui-icon-print" style="display:block;margin-bottom: 20px">
+                    <p:printer target="tabela2" />
+                </p:commandButton>
+                <p:dataTable id="tabela2" widgetVar="table2" value="#{MBProduto.listaProduto}" filteredValue="#{MBProduto.listaProdutoFiltrados}" var="item2" paginator="true" paginatorPosition="bottom" rows="11" emptyMessage="Nenhum registro encontrado">
+                    <f:facet name="header">
+                        <h:outputText value="Lista de produtos do fabricante"/>
+                    </f:facet>            
+                    <p:column headerText="Codigo">
+                        <h:outputText value="#{item2.codigo}"/>
+                    </p:column>
+                    <p:column headerText="Descrição">
+                        <h:outputText value="#{item2.descricao}"/>
+                    </p:column>
+                    <p:column headerText="Valor" width="10%">
+                        <h:outputText value="#{item2.preco}"/>
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="R$ "/>
+                            <h:outputText value="#{MBProduto.valor}">
+                                <f:convertNumber pattern="0.00"/>  
+                            </h:outputText>                                                  
+                        </f:facet>
+                    </p:column>
+                    <p:column headerText="Estoque" width="10%">
+                        <h:outputText value="#{item2.estoque}"/>
+                        <f:facet name="footer">                        
+                            <p:outputLabel value="Total "/>
+                            <h:outputText value="#{MBProduto.quantidade}"/>                                                  
+                        </f:facet>
+                    </p:column>
+                    <p:column headerText="Fabricante">
+                        <h:outputText value="#{item2.fabricante.nome}"/>
+                    </p:column> 
+                    <f:facet name="footer" >                     
+                        <h:commandLink>
+                            <p:graphicImage library="imagens" name="excel.png" width="24"/>
+                            <p:dataExporter type="xls" target="tabela2" fileName="produtos" />
+                        </h:commandLink>
+                        <h:commandLink>
+                            <p:graphicImage library="imagens" name="pdf.png" width="24" />
+                            <p:dataExporter type="pdf" target="tabela2" fileName="produtos" encoding="ISO-8859-1"/>
+                        </h:commandLink>   
+                    </f:facet>  
+                </p:dataTable>                  
+            </h:form>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+

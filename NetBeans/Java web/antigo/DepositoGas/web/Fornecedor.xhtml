@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFornecedor.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFornecedor.listaFornecedor}" filteredValue="#{MBFornecedor.listaFornecedorFiltrado}" var="fornecedor" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de fornecedores"/>
+                </f:facet>                 
+                <p:column headerText="Nome">
+                    <h:outputText value="#{fornecedor.nome}"/>
+                </p:column>               
+                <p:column headerText="Telefone">
+                    <h:outputText value="#{fornecedor.telefone}"/>
+                </p:column>  
+                <p:column headerText="Email">
+                    <h:outputText value="#{fornecedor.email}"/>
+                </p:column>                   
+                <p:column headerText="Opções">
+                    <p:commandButton icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover fornecedor" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBFornecedor.fornecedor}" value="#{fornecedor}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar informações" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBFornecedor.fornecedor}" value="#{fornecedor}"/>
+                    </p:commandButton> 
+                    <p:commandButton icon="ui-icon-mail-closed" id="mail" actionListener="#{MBCliente.limparEmail()}" oncomplete="PF('dlgEmail').show();"  update=":frmEnviar:painelEmail" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBFornecedor.fornecedor}" value="#{fornecedor}"/>
+                    </p:commandButton>
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar :frmTabela:tabela:mail">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+        </h:form>       
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" title="Registrar novo fornecedor" id="btregistrar" actionListener="#{MBFornecedor.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de fornecedor" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBFornecedor.fornecedor.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Telefone" for="telefone"/>   
+                    <p:inputText id="telefone" value="#{MBFornecedor.fornecedor.telefone}" size="30"  required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Email" for="email"/>
+                    <p:inputText id="email" value="#{MBFornecedor.fornecedor.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBFornecedor.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>   
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de fornecedor" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBFornecedor.fornecedor.codigo}"/>
+                    <p:outputLabel value="Nome"/>
+                    <p:inputText id="nome" value="#{MBFornecedor.fornecedor.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Telefone" for="telefone"/>   
+                    <p:inputText id="telefone" value="#{MBFornecedor.fornecedor.telefone}" size="30"  required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Email" for="email"/>
+                    <p:inputText id="email" value="#{MBFornecedor.fornecedor.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Confirmar" title="Confirmar alterações" id="editar" actionListener="#{MBFornecedor.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>      
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de fornecedor" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:outputLabel value="OBS: Ao excluir um fornecedor também serão excluidos seus respectivos produtos e registros." style="color: red"/>
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBFornecedor.fornecedor.codigo}" />
+                    <h:outputText value="Nome"/>
+                    <h:outputText value="#{MBFornecedor.fornecedor.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBFornecedor.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão"  onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir-->  
+
+        <p:dialog widgetVar="dlgEmail" id="email" closable="false" draggable="false" resizable="false" header="Envio de emails" modal="true" appendTo="@(body)">
+            <h:form id="frmEnviar">
+                <h:panelGrid columns="2" id="painelEmail">
+                    <p:outputLabel value="Email"/>
+                    <p:outputLabel value="#{MBFornecedor.MBAutenticacao.usuario.deposito.email}"/>
+                    <p:outputLabel value="Senha"/>
+                    <p:password value="#{MBFornecedor.senha}" size="30"  required="true" requiredMessage="O campo senha é obrigatorio"/>                    
+                    <p:outputLabel value="Assunto"/>
+                    <p:inputText value="#{MBFornecedor.assunto}" size="25" required="true" requiredMessage="O campo assunto é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Mensagem"/>
+                    <p:inputTextarea value="#{MBFornecedor.conteudo}" rows="10" style="width: 500px;" required="true" requiredMessage="Digite o corpo do email" />
+                </h:panelGrid>
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar envio" id="enviar" actionListener="#{MBFornecedor.enviarEmail()}"  oncomplete="verificar(xhr, status, args, 'dlgEmail','table')" update=":msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar operação" actionListener="#{MBFornecedor.limparEmail()}" oncomplete="PF('dlgEmail').hide();" process="@this">
+                            <p:resetInput target="painelEmail"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmEnviar" trigger="frmEnviar:enviar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+
+
+

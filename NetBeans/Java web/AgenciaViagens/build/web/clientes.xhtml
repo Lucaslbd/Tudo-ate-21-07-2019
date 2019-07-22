@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBCliente.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:form>
+            <h:panelGrid columns="1" style="margin-bottom: 5px">
+                <p:button value="Registrar" icon="ui-icon-disk" title="Registrar" outcome="clientes_cadastro.xhtml">
+                    <f:param name="acao" value="#{1}"/>
+                </p:button>                                 
+            </h:panelGrid>
+        </h:form>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBCliente.lista}" filteredValue="#{MBCliente.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de clientes"/>                    
+                </f:facet>  
+                <p:column headerText="Nome" filterBy="#{item.nome}" width="25%">
+                    <h:outputText value="#{item.nome}"/>                      
+                </p:column>
+                <p:column headerText="Telefone">
+                    <h:outputText value="#{item.telefone}"/>
+                </p:column>
+                <p:column headerText="Nascimento" filterBy="#{item.nasc}">
+                    <h:outputText value="#{item.nasc}"/>                     
+                </p:column>  
+                <p:column headerText="Rg" filterBy="#{item.rg}">
+                    <h:outputText value="#{item.rg}"/>
+                </p:column>
+                <p:column headerText="Estado" filterBy="#{item.estado}">
+                    <h:outputText value="#{item.estado}"/>
+                </p:column>                  
+                <p:column headerText="Cidade" filterBy="#{item.cidade}">
+                    <h:outputText value="#{item.cidade}"/>
+                </p:column>              
+                <p:column headerText="Opções" width="18%" exportable="false">                    
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBCliente.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="clientes_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>                    
+                    <p:commandButton icon="ui-icon-note" title="Histórico do cliente" actionListener="#{MBCliente.buscarVendas(item.codigo)}" oncomplete="PF('dlgHistorico').show();" update="formHistorico"/>
+                    <p:commandButton icon="ui-icon-comment" title="Falar pelo whatsapp" onclick="abrirzap('#{item.telefone}')"/>                        
+                    <p:commandButton icon="ui-icon-mail-closed" title="Enviar email" rendered="#{item.email != 'Não tem email'}" onclick="PF('dlgEmail').show();" update="formEmail">
+                        <f:setPropertyActionListener target="#{MBCliente.cliente}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-plusthick" title="Detalhes do cliente" onclick="PF('dlgDetalhes').show();" update="painelDetalhes">
+                        <f:setPropertyActionListener target="#{MBCliente.cliente}" value="#{item}"/>
+                    </p:commandButton>  
+                    <p:blockUI block="frmTabela" trigger="remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI>
+                </p:column>               
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI> 
+        </h:form>
+
+        <p:dialog widgetVar="dlgHistorico" closable="true" draggable="false" resizable="false" header="Histórico do cliente" modal="true" appendTo="@(body)" position="center top">
+            <h:form id="formHistorico">
+                <p:dataTable value="#{MBCliente.listaVenda}" var="venda" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="O cliente não possui histórico de compras">
+                    <f:facet name="header">
+                        <h:outputText value="Registro de compras do cliente"/>
+                    </f:facet>  
+                    <p:column headerText="Data da viagem" width="12%">
+                        <h:outputText value="#{venda.dataCheckin}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>                     
+                    </p:column>    
+                    <p:column headerText="Cliente">
+                        <h:outputText value="#{venda.cliente.nome}"/>                     
+                    </p:column> 
+                    <p:column headerText="Fornecedor">
+                        <h:outputText value="#{venda.fornecedor.nome}"/>                     
+                    </p:column> 
+                    <p:column headerText="Descrição">
+                        <h:outputText value="#{venda.descricao}"/>                     
+                    </p:column> 
+                    <p:column headerText="Taxa" width="8%">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{venda.taxas}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>                        
+                    </p:column>  
+                    <p:column headerText="Serviço" width="10%">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{venda.valorPacote}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>                      
+                    </p:column>   
+                    <p:column headerText="Total" width="10%">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{venda.valorPacote + venda.taxas}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>                      
+                    </p:column>                                                                            
+                </p:dataTable>
+            </h:form>
+        </p:dialog>   
+
+
+        <p:dialog widgetVar="dlgEmail" closable="false" draggable="false" resizable="false" header="Email" modal="true" appendTo="@(body)">
+            <h:form id="formEmail">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="Destinatário:"/>
+                    <p:outputLabel value="#{MBCliente.cliente.email}"/>
+                    <p:outputLabel value="Remetente:"/>
+                    <p:outputLabel value="#{MBCliente.MBAutenticacao.empresa.email}"/>                    
+                </h:panelGrid><hr/>
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Assunto:"/>
+                    <p:inputText size="40" value="#{MBCliente.assunto}" required="true" requiredMessage="O campo assunto é obrigatorio"/>
+                    <p:outputLabel value="Mensagem"/>
+                    <p:inputTextarea value="#{MBCliente.mensagem}" required="true" requiredMessage="O campo mensagem é obrigatorio" rows="6" cols="60"/>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton id="enviaEmail" value="Enviar" icon="ui-icon-check" actionListener="#{MBCliente.enviaEmail()}" oncomplete="verificar2(xhr, status, args, 'dlgEmail')" update=":msgGlobal"/>
+                    <p:commandButton value="Fechar" icon="ui-icon-circle-close" onclick="PF('dlgEmail').hide();" process="@this">
+                        <p:resetInput target="formEmail"/>
+                    </p:commandButton>
+                </h:panelGrid>
+                <p:blockUI block="formEmail" trigger="formEmail:enviaEmail">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI> 
+            </h:form>
+        </p:dialog>   
+
+        <p:dialog widgetVar="dlgDetalhes" closable="true" draggable="false" resizable="false" header="Detalhes do cliente" modal="true" appendTo="@(body)">
+            <h:panelGrid columns="2" id="painelDetalhes">
+                <p:outputLabel value="Nome:"/>
+                <p:outputLabel value="#{MBCliente.cliente.nome}"/>                     
+                <p:outputLabel value="Nascimento:"/>
+                <p:outputLabel value="#{MBCliente.cliente.nascimento}">
+                    <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                </p:outputLabel>  
+                <p:outputLabel value="RG:"/>
+                <p:outputLabel value="#{MBCliente.cliente.rg}"/>
+                <p:outputLabel value="Cpf:"/>
+                <p:outputLabel value="#{MBCliente.cliente.cpf}"/>
+                <p:outputLabel value="Telefone:"/>
+                <p:outputLabel value="#{MBCliente.cliente.telefone}"/>
+                <p:outputLabel value="Email:"/>
+                <p:outputLabel value="#{MBCliente.cliente.email}"/>
+                <p:outputLabel value="Estado:"/>
+                <p:outputLabel value="#{MBCliente.cliente.estado}"/>
+                <p:outputLabel value="Cidade:"/>                
+                <p:outputLabel value="#{MBCliente.cliente.cidade}"/>                    
+                <p:outputLabel value="Bairro:"/>                
+                <p:outputLabel value="#{MBCliente.cliente.bairro}"/>                   
+                <p:outputLabel value="Rua:"/>                
+                <p:outputLabel value="#{MBCliente.cliente.rua}"/>                  
+                <p:outputLabel value="Numero:"/>                
+                <p:outputLabel value="#{MBCliente.cliente.numero}"/>              
+            </h:panelGrid>            
+        </p:dialog>    
+    </ui:define>    
+</ui:composition>
+

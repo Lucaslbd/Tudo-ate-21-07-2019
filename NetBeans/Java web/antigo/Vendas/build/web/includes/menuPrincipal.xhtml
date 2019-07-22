@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+    <h:form id="menuPrincipal">
+        <p:menubar id="painelPrincipal">
+            <p:submenu label="Arquivo">
+                <p:menuitem value="Impressão de etiquetas" outcome="ImpressaoEtiquetas.xhtml"/> 
+                <p:menuitem value="Alterar informções da empresa" onclick="PF('dlgAltera').show();" update=":frmAltera:panelAltera"/> 
+                <p:menuitem value="Sair" action="#{MBAutenticacao.sair()}"/>
+                <p:menuitem value="Principal" outcome="Principal.xhtml"/>
+            </p:submenu>
+            <p:submenu label="Cadastros"> 
+                <p:menuitem value="Fabricante" outcome="Fabricante.xhtml"/>
+                <p:menuitem value="produtos" outcome="Produto.xhtml"/>
+                <p:menuitem value="Funcionarios" outcome="Funcionario.xhtml"/>
+            </p:submenu>
+            <p:submenu label="Vendas"> 
+                <p:menuitem value="Frente de caixa" outcome="FrenteCaixa.xhtml"/>
+                <p:menuitem value="Consulta por funcionario" outcome="PesquisaVendas.xhtml"/>
+                <p:menuitem value="Consulta por fornecedor" outcome="PesquisaVendasFornecedor"/>
+            </p:submenu>   
+            <p:submenu label="Chat"> 
+                <p:menuitem value="Chat" outcome="Chat.xhtml"/>                
+            </p:submenu>   
+        </p:menubar>
+    </h:form>
+
+    <p:dialog widgetVar="dlgAltera" closable="false" draggable="false" resizable="false" header="Alteração da empresa" modal="true" appendTo="@(body)">
+        <h:form id="frmAltera">
+            <h:panelGrid columns="2" id="panelAltera">
+                <p:outputLabel value="CNPJ" />
+                <p:inputMask mask="99.999.999/9999-99" value="#{MBAutenticacao.empresa.cnpj}" size="30"  required="true" requiredMessage="O campo cnpj é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Inscrição estadual"/>
+                <p:inputText value="#{MBAutenticacao.empresa.inscricaoEstadual}" size="30"  required="true" requiredMessage="O campo inscrição estadual é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Crt"/>
+                <p:inputText value="#{MBAutenticacao.empresa.crt}" size="30"  required="true" requiredMessage="O campo crt é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Razão social" />
+                <p:inputText value="#{MBAutenticacao.empresa.razaoSocial}" size="30" maxlength="60" required="true" requiredMessage="O campo razão social é obrigatorio" autocomplete="off"/>
+                <p:outputLabel value="Nome fantasia"/>
+                <p:inputText value="#{MBAutenticacao.empresa.nomeFantasia}" size="30" maxlength="60" required="true" requiredMessage="O campo nome fantasia é obrigatorio" autocomplete="off"/>
+                <p:outputLabel value="Cep"/>
+                <p:inputMask mask="99999-999" value="#{MBAutenticacao.empresa.cep}" size="30"  required="true" requiredMessage="O campo cep é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Cidade"/>
+                <p:inputText value="#{MBAutenticacao.empresa.cidade}" size="30"  required="true" requiredMessage="O campo cidade é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Bairro"/>
+                <p:inputText value="#{MBAutenticacao.empresa.bairro}" size="30"  required="true" requiredMessage="O campo bairro é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Rua"/>
+                <p:inputText value="#{MBAutenticacao.empresa.rua}" size="30"  required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off" maxlength="60"/>
+                <p:outputLabel value="Numero"/>
+                <p:inputText value="#{MBAutenticacao.empresa.numero}" size="30"  required="true" requiredMessage="O campo numero é obrigatorio" autocomplete="off" maxlength="60"/>
+            </h:panelGrid>  
+            <center><h:panelGrid columns="2">
+                    <p:commandButton value="Alterar" actionListener="#{MBAutenticacao.alterarEmpresa()}" oncomplete="verificar2(xhr, status, args, 'dlgAltera' );" update=":msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgAltera').hide();" process="@this">
+                        <p:resetInput target="panelAltera"/>
+                    </p:commandButton>
+                </h:panelGrid></center>
+        </h:form>            
+    </p:dialog>
+</ui:composition>

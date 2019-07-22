@@ -1,0 +1,32 @@
+      
+    .button{
+        -fx-background-color: #E45652;        
+        -fx-cursor: hand;             
+    }
+    
+   /* .button.confirmar{
+        -fx-background-image: url("imagens/Confirmar.png");       
+        -fx-background-repeat: no-repeat;      
+        -fx-background-size: 25px;
+    }
+    
+    .button.cancelar{
+        -fx-background-image: url("imagens/Cancelar.png");       
+        -fx-background-repeat: no-repeat;    
+        -fx-background-size: 25px;
+    }   */
+    
+    .text-field{                
+        -fx-background-radius: 10px;
+    }
+    
+    .anchorPane{
+         -fx-background-color: #20120F;
+    }
+    
+    .anchorPane2{
+        -fx-background-color: #9C2827;
+    }
+    
+    
+

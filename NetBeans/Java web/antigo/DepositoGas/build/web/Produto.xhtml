@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBProduto.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBProduto.listaProduto}" filteredValue="#{MBProduto.listaProdutoFiltrado}" var="produto" paginator="false"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de produtos"/>
+                </f:facet>                 
+                <p:column headerText="Nome">
+                    <h:outputText value="#{produto.nome}"/>
+                </p:column>               
+                <p:column headerText="Fornecedor" width="15%">
+                    <h:outputText value="#{produto.fornecedor.nome}"/>
+                </p:column>  
+                <p:column headerText="Estoque cheio" width="9%">
+                    <h:outputText value="#{produto.estoqueCheio}"/>
+                </p:column>  
+                <p:column headerText="Estoque vazio" width="9%">
+                    <h:outputText value="#{produto.estoqueVazio}"/>
+                </p:column>  
+                <p:column headerText="Estoque total" width="9%">
+                    <h:outputText value="#{produto.estoqueCheio + produto.estoqueVazio}"/>
+                </p:column>  
+                <p:column headerText="Preço produto" width="9%">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{produto.valorPortaria}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>               
+                <p:column headerText="Preço casco" width="9%">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{produto.valorCasco}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>                 
+                <p:column headerText="Opções"  width="10%" exportable="false">
+                    <p:commandButton  icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Excluir produto" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBProduto.produto}" value="#{produto}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" actionListener="#{MBProduto.listarFornecedor()}" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar informações" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBProduto.produto}" value="#{produto}"/>
+                    </p:commandButton> 
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+                <f:facet name="footer">                    
+                    <h:commandLink>
+                        <p:graphicImage library="imagens" name="excel.png" width="24" title="Exportar como excel"/>
+                        <p:dataExporter type="xls" target="tabela" fileName="produtos" />
+                    </h:commandLink>
+                    <h:commandLink>
+                        <p:graphicImage library="imagens" name="pdf.png" width="24" title="Exportar como pdf"/>
+                        <p:dataExporter type="pdf" target="tabela" fileName="produtos" encoding="ISO-8859-1"/>
+                    </h:commandLink>                   
+                </f:facet>
+            </p:dataTable>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBProduto.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Registrar novo produto"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Cadastro de produto" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome"/>
+                    <p:inputText  value="#{MBProduto.produto.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="35"/>
+                    <p:outputLabel value="Preço do produto"/>
+                    <p:inputText   value="#{MBProduto.produto.valorPortaria}" size="30"  required="true" requiredMessage="O campo preço de portaria é obrigatorio" autocomplete="off" converterMessage="O campo preço somente aceita numeros" validatorMessage="O campo preço não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                       
+                    <p:outputLabel value="Preço do casco" />
+                    <p:inputText  value="#{MBProduto.produto.valorCasco}" size="30"  required="true" requiredMessage="O campo preço do casco é obrigatorio" autocomplete="off" converterMessage="O campo preço do casco somente aceita numeros" validatorMessage="O campo preço do casco não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Preço da entrega"/>
+                    <p:inputText   value="#{MBProduto.produto.valorEntrega}" size="30"  required="true" requiredMessage="O campo preço da entrega é obrigatorio" autocomplete="off" converterMessage="O campo preço da entrega somente aceita numeros" validatorMessage="O campo preço da entrega não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Preço do prazo" />
+                    <p:inputText  value="#{MBProduto.produto.valorPrazo}" size="30"  required="true" requiredMessage="O campo preço do prazo é obrigatorio" autocomplete="off" converterMessage="O campo preço do prazo somente aceita numeros" validatorMessage="O campo preço do prazo não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Custo do produto" />
+                    <p:inputText value="#{MBProduto.produto.custoProduto}" size="30" required="true" requiredMessage="O campo custo do produto é obrigatorio" autocomplete="off" converterMessage="O campo custo do produto somente aceita numeros" validatorMessage="O campo custo do produto não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Custo do casco"/>
+                    <p:inputText value="#{MBProduto.produto.custoCasco}" size="30"  required="true" requiredMessage="O campo custo do casco é obrigatorio" autocomplete="off" converterMessage="O campo custo do casco somente aceita numeros" validatorMessage="O campo custo do casco não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Estoque cheio"/>
+                    <p:inputText value="#{MBProduto.produto.estoqueCheio}"  size="30"  required="true" requiredMessage="O campo estoque cheio é obrigatorio" autocomplete="off" converterMessage="O campo estoque cheio somente aceita numeros inteiros"/>
+                    <p:outputLabel value="Estoque Vazio" />
+                    <p:inputText value="#{MBProduto.produto.estoqueVazio}" size="30"  required="true" requiredMessage="O campo estoque vazio é obrigatorio" autocomplete="off" converterMessage="O campo estoque vazio somente aceita numeros inteiros"/>
+                    <p:outputLabel value="Fornecedor"/>
+                    <p:selectOneMenu value="#{MBProduto.produto.fornecedor}" filter="true" required="true" requiredMessage="É necessario ter um fornecedor na lista" converter="fornecedorConverter">
+                        <f:selectItems value="#{MBProduto.listaFornecedor}" var="fornecedor" itemValue="#{fornecedor}" itemLabel="#{fornecedor.nome}"/>                    
+                    </p:selectOneMenu> 
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBProduto.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de Produto" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBProduto.produto.codigo}"/>
+                    <p:outputLabel value="Nome"/>
+                    <p:inputText  value="#{MBProduto.produto.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="35"/>
+                    <p:outputLabel value="Preço de portaria"/>
+                    <p:inputText   value="#{MBProduto.produto.valorPortaria}" size="30"  required="true" requiredMessage="O campo preço de portaria é obrigatorio" autocomplete="off" converterMessage="O campo preço somente aceita numeros" validatorMessage="O campo preço não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                       
+                    <p:outputLabel value="Preço do casco"/>
+                    <p:inputText id="email" value="#{MBProduto.produto.valorCasco}" size="30"  required="true" requiredMessage="O campo preço do casco é obrigatorio" autocomplete="off" converterMessage="O campo preço do casco somente aceita numeros" validatorMessage="O campo preço do casco não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Preço da entrega"/>
+                    <p:inputText   value="#{MBProduto.produto.valorEntrega}" size="30"  required="true" requiredMessage="O campo preço da entrega é obrigatorio" autocomplete="off" converterMessage="O campo preço da entrega somente aceita numeros" validatorMessage="O campo preço da entrega não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Preço do prazo" />
+                    <p:inputText  value="#{MBProduto.produto.valorPrazo}" size="30"  required="true" requiredMessage="O campo preço do prazo é obrigatorio" autocomplete="off" converterMessage="O campo preço do prazo somente aceita numeros" validatorMessage="O campo preço do prazo não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Custo do produto" />
+                    <p:inputText value="#{MBProduto.produto.custoProduto}" size="30" required="true" requiredMessage="O campo custo do produto é obrigatorio" autocomplete="off" converterMessage="O campo custo do produto somente aceita numeros" validatorMessage="O campo custo do produto não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Custo do casco"/>
+                    <p:inputText value="#{MBProduto.produto.custoCasco}" size="30"  required="true" requiredMessage="O campo custo do casco é obrigatorio" autocomplete="off" converterMessage="O campo custo do casco somente aceita numeros" validatorMessage="O campo custo do casco não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                    <p:outputLabel value="Estoque cheio" />
+                    <p:inputText value="#{MBProduto.produto.estoqueCheio}" size="30"  required="true" requiredMessage="O campo estoque cheio é obrigatorio" autocomplete="off" converterMessage="O campo estoque cheio somente aceita numeros inteiros"/>
+                    <p:outputLabel value="Estoque Vazio" />
+                    <p:inputText value="#{MBProduto.produto.estoqueVazio}"  size="30"  required="true" requiredMessage="O campo estoque vazio é obrigatorio" autocomplete="off" converterMessage="O campo estoque vazio somente aceita numeros inteiros"/>
+                    <p:outputLabel value="Fornecedor°" />
+                    <p:selectOneMenu value="#{MBProduto.produto.fornecedor}" filter="true" required="true" requiredMessage="É necessario ter um fornecedor na lista" converter="fornecedorConverter">
+                        <f:selectItems value="#{MBProduto.listaFornecedor}" var="fornecedor" itemValue="#{fornecedor}" itemLabel="#{fornecedor.nome}"/>                    
+                    </p:selectOneMenu>                      
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" title="Confirmar alterações" id="editar" actionListener="#{MBProduto.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de produto" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:outputLabel value="OBS: Ao excluir um produto também serão excluidos seus respectivos registros." style="color: red"/>
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBProduto.produto.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBProduto.produto.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBProduto.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

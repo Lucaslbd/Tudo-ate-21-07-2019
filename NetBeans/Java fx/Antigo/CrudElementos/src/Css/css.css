@@ -1,0 +1,21 @@
+.label{
+    -fx-border-color: #ff0000;
+}
+
+.button:hover{
+    -fx-text-align: right;
+    -fx-font-size: 15pt;
+    -fx-background-color: red;
+    -fx-cursor: hand;
+}
+
+.text-field{
+    -fx-background-color: #ffff00;
+}
+
+.button.inserir{    
+    -fx-background-image: url("bt_inserir.png");
+    -fx-background-repeat: no-repeat;
+    -fx-pref-tile-height: 30px;
+    -fx-pref-tile-width: 30px;
+}

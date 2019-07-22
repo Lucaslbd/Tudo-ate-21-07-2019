@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBContato.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>    
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBContato.lista}" filteredValue="#{MBContato.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Pedidos de contato"/>
+                </f:facet>  
+                <p:column headerText="Nome do cliente">
+                    <h:outputText value="#{item.nome}"/>
+                </p:column>               
+                <p:column headerText="Email">
+                    <h:outputText value="#{item.email}"/>
+                </p:column>               
+                <p:column headerText="Telefone">
+                    <h:outputText value="#{item.fone}"/>                  
+                </p:column>
+                <p:column headerText="Data do pedido">
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>                
+                <p:column headerText="Opções">                             
+                    <p:button icon="ui-icon-trash" title="Remover" outcome="ContatoOpcoes.xhtml" class="botao1">
+                        <f:param name="acao" value="excluir"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>
+                    <p:button icon="ui-icon-search" title="Ver" outcome="ContatoOpcoes.xhtml" class="botao1">
+                        <f:param name="acao" value="ver"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button> 
+                </p:column>
+            </p:dataTable>
+        </h:form>         
+    </ui:define>
+</ui:composition>
+

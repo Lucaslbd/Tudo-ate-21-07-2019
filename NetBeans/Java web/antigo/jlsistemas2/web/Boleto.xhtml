@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBBoleto.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">  
+        <h:form id="f"> 
+            <h:panelGrid columns="3" >
+                <p:button value="Registrar" outcome="BoletoOpcoes.xhtml" title="Registrar" class="botao">
+                    <f:param name="acao" value="novo"/>
+                </p:button>
+                <p:commandButton value="Ver saldo" id="saldo" actionListener="#{MBBoleto.consultaSaldo()}" oncomplete="PF('dlgSaldo').show();" update=":frmSaldo" title="Ver saldo" class="botao"/>
+                <p:commandButton value="Atualizar" id="atualiza" actionListener="#{MBBoleto.consultaPagamentosEcobrancas()}" update=":frmTabela" title="Atualizar" class="botao"/>
+            </h:panelGrid>            
+        </h:form>
+
+        <h:form id="frmTabela">  
+            <p:blockUI block="frmTabela" trigger="f:saldo :f:atualiza">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBBoleto.lista}" filteredValue="#{MBBoleto.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registros de boletos"/>
+                </f:facet> 
+                <p:column headerText="Codigo" filterBy="#{item.code}" filterStyle="width:80%">
+                    <h:outputText value="#{item.code}"/>
+                </p:column> 
+                <p:column headerText="Vencimento">
+                    <h:outputText value="#{item.vencimento}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor" width="10%">
+                    <h:outputText value="R$"/>
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>                        
+                    </h:outputText>                    
+                </p:column>
+                <p:column headerText="Desconto" width="10%">
+                    <h:outputText value="R$"/>
+                    <h:outputText value="#{item.desconto}">
+                        <f:convertNumber pattern="0.00"/>                        
+                    </h:outputText>                    
+                </p:column>
+                <p:column headerText="Cliente" filterBy="#{item.empresa.nome}" filterStyle="width:80%">
+                    <h:outputText value="#{item.empresa.nome}"/>
+                </p:column>                               
+                <p:column headerText="Telefone">
+                    <h:outputText value="#{item.empresa.telefone}"/>
+                </p:column>
+                 <p:column headerText="Status">
+                     <h:outputText value="#{item.status}"/>
+                </p:column> 
+                <p:column headerText="Opções">
+                    <p:button icon="ui-icon-trash" title="Remover" outcome="BoletoOpcoes.xhtml" class="botao1">
+                        <f:param name="acao" value="excluir"/>
+                        <f:param name="codigo" value="#{item.code}"/>
+                    </p:button> 
+                    <p:link href="#{item.link}" target="_blank">
+                        <p:button icon="ui-icon-image" title="Ver boleto" class="botao1"/>
+                    </p:link>
+                </p:column>
+            </p:dataTable>
+        </h:form> 
+
+        <p:dialog widgetVar="dlgSaldo" closable="true" draggable="false" resizable="false" header="Consulta de saldo" modal="true" appendTo="@(body)" height="100px">
+            <h:form id="frmSaldo">                
+                <h:panelGrid columns="2">
+                    <p:panelGrid columns="2">
+                        <h:outputText value="Total" style="font-weight: bold"/>
+                        <h:outputText value="#{MBBoleto.total}" style="color: green">
+                            <f:convertNumber pattern="R$ 0.00"/>
+                        </h:outputText>
+                        <h:outputText value="Aguardando" style="font-weight: bold"/>
+                        <h:outputText value="#{MBBoleto.aguardando}" style="color: red">
+                            <f:convertNumber pattern="R$ 0.00"/>
+                        </h:outputText>                  
+                        <h:outputText value="Liberado" style="font-weight: bold"/>
+                        <h:outputText value="#{MBBoleto.liberado}" style="color: blue">
+                            <f:convertNumber pattern="R$ 0.00"/>
+                        </h:outputText>
+                    </p:panelGrid>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Pedir transferência" title="Pedir transferência" id="excluir" actionListener="#{MBBoleto.pedirTransferencia()}"  oncomplete="PF('dlgSaldo').hide();" update=":msgGlobal"/>
+                    </h:panelGrid>
+                </h:panelGrid>
+
+            </h:form>   
+            <p:blockUI block="frmSaldo" trigger="frmSaldo:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+

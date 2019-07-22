@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/ModeloCaixa.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFrenteCaixa.preencherObjetos()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>    
+    <!--.......................................................................................--> 
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <!--.......................................................................................--> 
+    <ui:define name="esquerda">
+
+        <div style="background-color: beige" >
+            <h:form id="menu">
+                <h:panelGrid columns="2" rendered="#{MBFrenteCaixa.finaliza}">
+                    <h:outputLabel value="Produto"/>
+                    <p:selectOneMenu value="#{MBFrenteCaixa.produto}" style="width:200px" filter="true" required="true" requiredMessage="É necessario ter um produto na lista" converter="produtoConverter">
+                        <f:selectItems value="#{MBFrenteCaixa.listaProduto}" var="produto" itemValue="#{produto}" itemLabel="#{produto.nome}"/>                    
+                    </p:selectOneMenu>
+                    <h:outputLabel value="Tipo"/>
+                    <p:selectOneMenu value="#{MBFrenteCaixa.casco}" filter="true" required="true">
+                        <f:selectItem itemValue="Sem casco" itemLabel="Sem casco"/>    
+                        <f:selectItem itemValue="Com casco" itemLabel="Com casco"/>    
+                    </p:selectOneMenu>
+                    <h:outputLabel value="Qtd"/>
+                    <p:inputText value="#{MBFrenteCaixa.quantidade}" size="5" required="true" requiredMessage="O campo quantidade é obrigatorio" converterMessage="O campo quantidade somente aceita numeros" validatorMessage="O campo quantidade não aceita valores menores que 1">
+                        <f:validateDoubleRange minimum="1"/>
+                    </p:inputText>
+                </h:panelGrid>  
+                <center><p:commandButton id="adicionar" value="Adicionar" actionListener="#{MBFrenteCaixa.adicionar()}" update=":frmTabela :pnlTotal :menu :msgGlobal" style="margin-top:4%; margin-bottom: 4%;  width:99%; background-color:yellowgreen" rendered="#{MBFrenteCaixa.finaliza}"/></center>
+            </h:form>
+        </div>
+        <center><h:panelGrid columns="2" id="pnlTotal" style="font-size: 25px; font-weight: bold; margin-bottom:5%; margin-top:5%; color: blue">
+                <h:outputLabel value="Total R$"/>
+                <h:outputLabel value="#{MBFrenteCaixa.valorTotal}"/>
+            </h:panelGrid></center>
+        <h:form id="menu2">           
+            <div style="background-color: beige" >
+                <h:panelGrid columns="2" rendered="#{!MBFrenteCaixa.finaliza}">
+                    <h:outputLabel value="Pagamento"/>
+                    <p:selectOneMenu value="#{MBFrenteCaixa.pagamento}" id="pagamento" style="width:85%" filter="true" required="true" requiredMessage="É necessario ter formas de pagamento na lista" converter="formaPagamentoConverter">
+                        <p:ajax event="change" listener="#{MBFrenteCaixa.aceitaCrediario()}" update=":menu2 :pnlTotal :frmTabela"/> 
+                        <f:selectItems value="#{MBFrenteCaixa.listaFormaPagamento}" var="pagamento" itemValue="#{pagamento}" itemLabel="#{pagamento.tipo}"/>                    
+                    </p:selectOneMenu>
+                    <h:outputLabel value="Tipo"/>
+                    <p:selectOneMenu id="entrega" value="#{MBFrenteCaixa.entrega}" filter="true" required="true" style="width: 85%">
+                        <p:ajax event="change" listener="#{MBFrenteCaixa.verEntrega()}" update=":menu2 :frmTabela :pnlTotal"/>  
+                        <f:selectItem itemValue="Sem entrega" itemLabel="Sem entrega"/>    
+                        <f:selectItem itemValue="Com entrega" itemLabel="Com entrega"/>    
+                    </p:selectOneMenu>                   
+                    <h:outputLabel value="Data receber" rendered="#{MBFrenteCaixa.crediario}"/>
+                    <p:calendar value="#{MBFrenteCaixa.data}" required="true" requiredMessage="Preencha a data do pagamento" rendered="#{MBFrenteCaixa.crediario}" mask="99/99/9999" pattern="dd/MM/yyyy"/>
+                    <h:outputLabel value="Veiculo" rendered="#{MBFrenteCaixa.controlaEntrega}"/>
+                    <p:selectOneMenu value="#{MBFrenteCaixa.veiculo}" style="width:85%" filter="true" required="true" requiredMessage="É necessario um veiculo na lista" converter="veiculoConverter" rendered="#{MBFrenteCaixa.controlaEntrega}">
+                        <f:selectItems value="#{MBFrenteCaixa.listaVeiculo}" var="veiculo" itemValue="#{veiculo}" itemLabel="#{veiculo.placa}"/>                    
+                    </p:selectOneMenu>
+                     <h:outputLabel value="Cliente"/>
+                     <p:selectOneMenu value="#{MBFrenteCaixa.cliente}" style="width:170px" filter="true" required="#{MBFrenteCaixa.crediario}" requiredMessage="É necessario um cliente na lista"  converter="clienteConverter">
+                        <f:selectItem itemLabel="Identifique o cliente na venda" itemValue="#{null}"/>
+                        <f:selectItems value="#{MBFrenteCaixa.listaCliente}" var="cliente" itemValue="#{cliente}" itemLabel="#{cliente.nome}"/>                    
+                    </p:selectOneMenu>
+                </h:panelGrid>              
+                <center><p:commandButton id="Finalizar" actionListener="#{MBFrenteCaixa.finalizar()}" value="Finalizar venda" style="margin-top:4%; margin-bottom: 4%;  width:99%; background-color:yellowgreen" update=":menu :menu2 :frmTabela :pnlTotal :frmCancel :msgGlobal" rendered="#{!MBFrenteCaixa.finaliza}"/></center>
+            </div> 
+            <p:blockUI block="menu2" trigger=":menu2:entrega :menu2:Finalizar :menu2:pagamento">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form> 
+    </ui:define>
+    <!--.......................................................................................-->
+    <ui:define name="conteudo">
+        <h:form id="frmCancel"> 
+            <p:toolbar>
+                <f:facet name="left">
+                    <h:outputText value="Atendente: #{MBAutenticacao.usuario.nome}"/>
+                </f:facet>
+                <f:facet name="right">
+                    <p:commandButton value="Cancelar operação" id="cancel" actionListener="#{MBFrenteCaixa.cancelar()}" update=":menu :menu2 :frmTabela :pnlTotal :msgGlobal" style="background-color:red;"/>
+                </f:facet>
+            </p:toolbar>
+        </h:form>
+        <h:form id="frmTabela">          
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFrenteCaixa.listaItem}" var="item" rowIndexVar="numero" rows="10" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Frente de caixa"/>
+                </f:facet>
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{numero +1}"/>
+                </p:column>                
+                <p:column headerText="Produto">
+                    <h:outputText value="#{item.produto.nome}" />
+                </p:column>
+                <p:column headerText="Casco" width="15%">
+                    <h:outputText value="#{item.casco}"/>
+                </p:column>  
+                <p:column headerText="Quantidade" width="15%">
+                    <h:outputText value="#{item.quantdade}"/>
+                </p:column>  
+                <p:column headerText="Preço" width="15%">
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>                      
+                <p:column headerText="Opções" width="15%">                    
+                    <p:commandButton icon="ui-icon-trash" id="btRemover" actionListener="#{MBFrenteCaixa.remover(numero)}" style="height: 20px"  update=":menu :menu2 :frmTabela :pnlTotal :frmCancel :msgGlobal" title="Remover da lista" rendered="#{MBFrenteCaixa.finaliza}"/>   
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" actionListener="#{MBFrenteCaixa.recebe(item,numero)}" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar :msgGlobal" title="Alterar informações" style="height:20px"/>                                             
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>            
+            <p:blockUI block="frmTabela:tabela" trigger=":menu:adicionar :frmCancel:cancel :frmTabela:fnlLista :frmTabela:tabela:btRemover">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+            <center><p:commandButton value="Finalizar lista" id="fnlLista" actionListener="#{MBFrenteCaixa.finalizaLista()}" update=":menu :menu2 :frmTabela :frmCancel :msgGlobal" style="width:99%; background-color:yellowgreen" rendered="#{MBFrenteCaixa.finaliza}"/></center>
+        </h:form>
+
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de preço" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">                     
+                    <p:outputLabel value="Novo valor"/>
+                    <p:inputText  value="#{MBFrenteCaixa.valorAlterar}" size="30"  required="true" requiredMessage="O campo preço do casco é obrigatorio" autocomplete="off" converterMessage="O campo somente aceita numeros" validatorMessage="O campo não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                                      
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Alterar" title="Confirmar alterações" id="editar" actionListener="#{MBFrenteCaixa.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":menu :menu2 :frmTabela :pnlTotal :frmCancel :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>        
+    </ui:define>
+</ui:composition>

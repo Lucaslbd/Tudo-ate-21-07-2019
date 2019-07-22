@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">  
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBPagamentoFuncionario.listarFuncionarios()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>     
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <center> <h:form id="formPesquisa">
+                <h:panelGrid id="pnlPesquisa" columns="6" style="margin-bottom: 1%">
+                    <h:outputText value="Inicio:"/>
+                    <p:calendar  value="#{MBPagamentoFuncionario.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                               
+                    <h:outputText value="Final:"/>
+                    <p:calendar value="#{MBPagamentoFuncionario.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                              
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBPagamentoFuncionario.listar()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal"/>                       
+                    <p:commandButton value="Somar" actionListener="#{MBPagamentoFuncionario.somar()}" update=":msgGlobal" title="Total de gastos na lista" style="background-color:yellowgreen"/>
+                </h:panelGrid>                
+            </h:form>
+        </center>
+
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBPagamentoFuncionario.lista}" filteredValue="#{MBPagamentoFuncionario.listaFiltrada}" var="item" paginator="true"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de pagamentos de funcionários"/>
+                </f:facet>                
+                <p:column headerText="Data" width="10%">
+                    <h:outputText value="#{item.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>                               
+                <p:column headerText="Descrição" width="15%" filterBy="#{item.descricao}" filterStyle="max-width:150px;">                                    
+                    <h:outputText value="#{item.descricao}"/>
+                </p:column>  
+                <p:column headerText="Valor" width="10%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                    
+                </p:column>  
+                <p:column headerText="Nome" filterBy="#{item.funcionario.nome}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.funcionario.nome}"/>
+                </p:column> 
+                <p:column headerText="Cargo" width="15%" filterBy="#{item.funcionario.cargo}" filterStyle="max-width:80%;">
+                    <h:outputText value="#{item.funcionario.cargo}"/>
+                </p:column> 
+                <p:column headerText="Status" width="15%" filterBy="#{item.funcionario.situacao}" filterStyle="max-width:80%;">
+                    <h:outputText value="#{item.funcionario.situacao}"/>
+                </p:column>                 
+                <p:column headerText="Opções" exportable="false" width="10%">
+                    <p:commandButton  icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":dlExcluir" title="Excluir registro" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBPagamentoFuncionario.gasto}" value="#{item}"/>
+                    </p:commandButton>
+                </p:column>                
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBPagamentoFuncionario.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Registrar"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Registro de pagamento" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Funcionario" />
+                    <p:selectOneMenu value="#{MBPagamentoFuncionario.gasto.funcionario}" filter="true" required="true" requiredMessage="É necessario ter um funcionário na lista" converter="funcionarioConverter">
+                        <f:selectItem itemValue="#{null}" itemLabel="Escolha um funcionário"/>
+                        <f:selectItems value="#{MBPagamentoFuncionario.listaFuncionario}" var="funcionario" itemValue="#{funcionario}" itemLabel="#{funcionario.nome}"/>                    
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Descrição"/>
+                    <p:selectOneMenu id="tipo" value="#{MBPagamentoFuncionario.gasto.descricao}" filter="true">                       
+                        <f:selectItem itemLabel="Pagamento" itemValue="Pagamento"/>
+                        <f:selectItem itemLabel="Adiantamento" itemValue="Adiantamento"/>                                          
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Valor"/>
+                    <p:inputText value="#{MBPagamentoFuncionario.gasto.valor}" size="30"  required="true" requiredMessage="O campo valor é obrigatorio" autocomplete="off" maxlength="8" converterMessage="O campo valor somente aceita numeros" validatorMessage="O campo valor não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                   
+                    <p:outputLabel value="Data" />   
+                    <p:calendar value="#{MBPagamentoFuncionario.gasto.data}" size="30"  required="true" requiredMessage="O campo data é obrigatorio" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBPagamentoFuncionario.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->      
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" id="dlExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de registro" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">                   
+                <h:panelGrid id="pnlExcluir" columns="2">        
+                    <h:outputText value="Funcionario:"/>
+                    <h:outputText value="#{MBPagamentoFuncionario.gasto.funcionario.nome}" />
+                    <h:outputText value="Data:"/>
+                    <h:outputText value="#{MBPagamentoFuncionario.gasto.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBPagamentoFuncionario.gasto.descricao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBPagamentoFuncionario.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

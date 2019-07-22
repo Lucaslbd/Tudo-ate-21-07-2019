@@ -1,0 +1,17 @@
+fieldset{
+	width: 50%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 20px;
+}
+
+legend{
+	text-align: left;
+}
+
+input {
+	width: 90%;
+	height: 30px;
+	margin-bottom: 20px;
+	border-radius: 3px;
+}

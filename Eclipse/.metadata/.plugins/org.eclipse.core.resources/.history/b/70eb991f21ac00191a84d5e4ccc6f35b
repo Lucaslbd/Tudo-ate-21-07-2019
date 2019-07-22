@@ -1,0 +1,7 @@
+function validar(){
+	var valor = document.getElementById("valor");
+	if(valor.length < 2){
+		alert("Preencha o campo valor do produto");
+		valor.focus();
+	}
+}

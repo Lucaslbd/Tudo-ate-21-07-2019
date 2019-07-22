@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                template="templates/modeloSistema.xhtml">
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">
+        <h:form id="frm">
+            <p:dataTable id="table" widgetVar="tabelaListagem2" emptyMessage="Nenhum registro encontrado" value="#{MBProduto.itens}" filteredValue="#{MBProduto.itensFiltrados}" var="item"  paginator="true" rows="10">
+                <f:facet name="header">
+                    <h:outputText value="Listagem de produtos"/>
+                </f:facet> 
+                <p:column headerText="Codigo">
+                    <h:outputText value="#{item.codigo}"/>
+                </p:column>
+                <p:column headerText="Descrição" filterBy="#{item.descricao}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.descricao}"/> 
+                </p:column>
+                <p:column headerText="Estoque">
+                    <h:outputText value="#{item.quantidade}"/>
+                </p:column>
+                <p:column headerText="Valor">
+                    <h:outputText value="#{item.preco}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Fabricante" filterBy="#{item.fabricante}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.fabricante}"/>
+                </p:column>
+                <p:column headerText="Opções">
+                    <p:commandButton icon="ui-icon-trash" oncomplete="PF('dlgFabExcluir').show();" update=":formexcluir:pnExcluir">
+                        <f:setPropertyActionListener target="#{MBProduto.proeduto}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" actionListener="#{MBProduto.prepararEditar()}" oncomplete="PF('dlgFabEditar').show();" update=":frmEditar:pnEditar :msgGlobal">
+                        <f:setPropertyActionListener target="#{MBProduto.proeduto}" value="#{item}"/>
+                    </p:commandButton>
+                </p:column>
+                <f:facet name="footer">
+                    <p:commandButton value="Novo" actionListener="#{MBProduto.prepararnovo()}" oncomplete="PF('dlgProdNovo').show();" update=":frmProdNovo:pnlProdNovo"/>
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+
+
+        <p:dialog widgetVar="dlgProdNovo" closable="false" draggable="false" resizable="false" header="Cadastrar Produto" modal="true" appendTo="@(body)">
+            <h:form id="frmProdNovo">
+                <h:panelGrid columns="2" id="pnlProdNovo">
+                    <p:outputLabel value="Descrição" for="ndesc"/>
+                    <p:inputText id="ndesc" value="#{MBProduto.proeduto.descricao}" maxlength="50" size="30" required="true" requiredMessage="O campo descrição é obrigatorio"/>
+                    <p:outputLabel value="Estoque" for="nestoque"/>
+                    <p:inputText id="nestoque" value="#{MBProduto.proeduto.quantidade}" size="30" required="true" requiredMessage="O campo quantidade é obrigatorio"/>
+                    <p:outputLabel value="Valor" for="nvalor"/>
+                    <p:inputText  id="nvalor" value="#{MBProduto.proeduto.preco}" size="30" required="true" requiredMessage="O campo preço é obrigatorio" converterMessage="O campo valor somente aceita numero" validatorMessage="O campo valor não aceita valores menores que 0.00">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>                          
+                    <p:outputLabel value="Fabricante"/>
+                    <p:selectOneMenu value="#{MBProduto.proeduto.fabricante}" filter="true">
+                        <f:selectItems value="#{MBProduto.comboFabricantes}" var="item" itemValue="#{item}" itemLabel="#{item.descricao}"/>
+                    </p:selectOneMenu>                    
+                </h:panelGrid>   
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Gravar" actionListener="#{MBProduto.novo()}"  oncomplete="verificar(xhr, status, args, 'dlgProdNovo','tabelaListagem2')" update=":frm:table :msgGlobal"/> 
+                    <p:commandButton value="Cancelar" onclick="PF('dlgProdNovo').hide();" process="@this">
+                        <p:resetInput target="pnlProdNovo"/>
+                    </p:commandButton> 
+                </h:panelGrid>
+            </h:form>  
+        </p:dialog>  
+
+
+        <p:dialog widgetVar="dlgFabExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de produto" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBProduto.proeduto.codigo}"/>
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBProduto.proeduto.descricao}"/>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" actionListener="#{MBProduto.excluir()}" oncomplete="PF('dlgFabExcluir').hide(); PF('tabelaListagem2').clearFilters();" update=":frm:table :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgFabExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+
+        <p:dialog widgetVar="dlgFabEditar" closable="false" draggable="false" resizable="false" header="Edição de produtos" modal="true" appendTo="@(body)">
+            <h:form id="frmEditar">
+                <h:panelGrid id="pnEditar" columns="2">
+                    <p:outputLabel value="Codigo:"/>
+                    <h:outputText value="#{MBProduto.proeduto.codigo}"/>
+                    <p:outputLabel value="Descrição:" for="edesc"/>
+                    <p:inputText id="edesc" value="#{MBProduto.proeduto.descricao}" size="30" maxlength="30" required="true" requiredMessage="O campo descrição é obrigatorio"/>
+                    <p:outputLabel for="eestoque" value="Estoque:"/>
+                    <p:inputText id="eestoque" value="#{MBProduto.proeduto.quantidade}" size="30" maxlength="30" required="true" requiredMessage="O campo estoque é obrigatorio"/>
+                    <p:outputLabel for="preco" value="Valor:"/>
+                    <p:inputText id="preco" value="#{MBProduto.proeduto.preco}" size="30" maxlength="30" required="true" requiredMessage="O campo preço é obrigatorio"/>
+                    <p:outputLabel value="Fabricante:"/>
+                    <p:selectOneMenu value="#{MBProduto.proeduto.fabricante}" filter="true">
+                        <f:selectItems value="#{MBProduto.comboFabricantes}" var="item" itemValue="#{item.descricao}" itemLabel="#{item.descricao}"/>
+                    </p:selectOneMenu>  
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Editar" actionListener="#{MBProduto.editar()}" oncomplete="verificar(xhr, status, args, 'dlgFabEditar','tabelaListagem2')" update=":frm:table :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgFabEditar').hide();" process="@this">
+                    <p:resetInput target="pnEditar"/>
+                    </p:commandButton>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>             
+    </ui:define>    
+</ui:composition>
+

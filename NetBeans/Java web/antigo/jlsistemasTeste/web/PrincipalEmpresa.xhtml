@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloEmpresa.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+    <ui:define name="menu">
+        <ui:include src="includes/menuEmpresa.xhtml"/>
+    </ui:define>
+    
+    <ui:define name="conteudo">            
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBAutenticacao.listaSistema}" var="item" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="#{MBAutenticacao.empresa.nome}"/>
+                </f:facet>  
+                <p:column headerText="Icone" width="10%">
+                    <p:graphicImage library="uploadFotos" name="#{item.codigo}.jpg" width="90%"/>
+                </p:column> 
+                <p:column headerText="Detalhes" width="15%">
+                    <h:panelGrid columns="1" style="border-color: beige ">
+                        <p:outputLabel value="Nome: #{item.nome}"/>                       
+                        <p:outputLabel value="Versão: #{item.versao}"/>                        
+                        <p:outputLabel value="Ramo: #{item.ramo}"/>                                             
+                    </h:panelGrid>                      
+                </p:column>                
+                <p:column headerText="Opções">
+                    <p:commandButton icon=" ui-icon-document" ajax="false" title="Baixar documentação">      
+                        <p:fileDownload value="#{MBSistema.dowloadTxt(item.codigo,item.nome)}"/>
+                    </p:commandButton>                             
+                    <p:commandButton icon="ui-icon-arrowthick-1-s" ajax="false" title="Baixar sistema">
+                        <p:fileDownload value="#{MBSistema.dowloadSistema(item.codigo,item.nome)}"/>
+                    </p:commandButton>                        
+                </p:column>              
+            </p:dataTable>
+        </h:form>       
+    </ui:define>    
+</ui:composition>
+
+

@@ -1,0 +1,32 @@
+button {
+	cursor: pointer;
+	background-color: #3A4154;
+	color: white;
+	font-weight: bold;
+	border-radius: 15px;
+}
+
+button:hover {
+	background-color: red;
+}
+
+div {
+	text-align: center;
+	padding: 10px;
+}
+
+input{
+	height: 20px;
+	border-radius: 15px;
+}
+
+input[type=submit] {
+	cursor: pointer;
+	background-color: #3A4154;
+	color: white;
+	font-weight: bold;		
+}
+
+input[type=submit]:hover {
+	background-color: red;
+}

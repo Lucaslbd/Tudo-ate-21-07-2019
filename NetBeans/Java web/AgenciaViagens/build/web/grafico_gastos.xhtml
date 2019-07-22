@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>           
+            <f:event listener="#{MBGraficoGastos.anosTrabalhados()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">         
+        <h:form id="frm">
+            <h:panelGrid columns="1" style="margin-left: 50px">                
+                <h:panelGrid columns="2">                  
+                    <p:selectOneMenu value="#{MBGraficoGastos.anoDesejado}" required="true" requiredMessage="Selecione o ano desejado">
+                        <f:selectItem itemLabel="Selecione o ano desejado" itemValue="#{null}"/>
+                        <f:selectItems value="#{MBGraficoGastos.listaAnos}" var="ano" itemValue="#{ano}" itemLabel="#{ano}"/>                    
+                    </p:selectOneMenu>
+                    <p:commandButton id="criar" value="Criar gráfico" actionListener="#{MBGraficoGastos.montarGrafico()}" update="grafico :msgGlobal"/>
+                </h:panelGrid>
+            </h:panelGrid>        
+            <p:chart id="grafico" type="bar" model="#{MBGraficoGastos.lineModel}" style="height: 500px; width: 90%; margin: 0 auto;" />
+            <p:blockUI block="frm" trigger="frm:criar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+
+
+

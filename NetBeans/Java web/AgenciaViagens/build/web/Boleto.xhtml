@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">          
+        <h:form id="f"> 
+            <h:panelGrid columns="5" style="margin-left: 10px;">
+                <p:button value="Registrar" outcome="BoletoOpcoes.xhtml" title="Registrar"/>                   
+                <p:commandButton value="Ver saldo" id="saldo" actionListener="#{MBBoleto.consultaSaldo()}" oncomplete="PF('dlgSaldo').show();" update=":frmSaldo :msgGlobal" title="Ver saldo"/>
+                <p:commandButton value="Atualizar" id="atualiza" actionListener="#{MBBoleto.consultaPagamentosEcobrancas()}" update=":frmTabela :msgGlobal" title="Atualizar"/>
+                <p:commandButton value="Transações" id="tran" actionListener="#{MBBoleto.listarTransacao()}" oncomplete="PF('dlgTransacao').show();" update=":frmTransacao" title="Ver transações"/>
+                <p:commandButton value="Token" id="token" onclick="PF('dlgToken').show();" update=":frmToken" title="Atualizar token"/>
+            </h:panelGrid>            
+        </h:form>
+        <h:form>
+            <h:panelGrid columns="2" style="margin:5px">
+                <h:panelGrid columns="2" style="margin: 0 auto">
+                    <h:panelGrid columns="2">
+                        <p:selectOneMenu value="#{MBBoleto.pesquisa}" filter="true">
+                            <p:ajax event="change" update="pesquisa:data :msgGlobal"/>  
+                            <f:selectItem itemLabel="Buscar por data" itemValue="1"/>
+                            <f:selectItem itemLabel="Buscar por codigo" itemValue="2"/>                                                       
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+                    <h:form id="pesquisa">                        
+                        <h:panelGrid id="data" columns="2">
+                            <p:calendar value="#{MBBoleto.data1}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data1" placeholder="Data 1" rendered="#{MBBoleto.pesquisa == 1}"/>
+                            <p:calendar value="#{MBBoleto.data2}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data2" placeholder="Data 2" rendered="#{MBBoleto.pesquisa == 1}"/>
+                            <p:inputText value="#{MBBoleto.referencia}" required="true" requiredMessage="Preencha o campo codigo" placeholder="Codigo" rendered="#{MBBoleto.pesquisa == 2}"/>
+                        </h:panelGrid>                        
+                    </h:form>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton id="pesquisar" value="Pesquisar" icon="ui-icon-circle-zoomin" actionListener="#{MBBoleto.listar()}" update="frmTabela:tabela :msgGlobal"/>
+                    <p:blockUI block="frmTabela" trigger="pesquisar">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI> 
+                </h:panelGrid>
+            </h:panelGrid>
+        </h:form>
+        <h:form id="frmTabela">  
+            <p:blockUI block="frmTabela" trigger="f:saldo :f:atualiza :f:tran">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBBoleto.lista}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registros de boletos"/>
+                </f:facet> 
+                <p:column headerText="Codigo">
+                    <h:outputText value="#{item.code}"/>
+                </p:column> 
+                <p:column headerText="Vencimento" width="10%">
+                    <h:outputText value="#{item.vencimento}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor" width="10%">                   
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="R$ ###,###,##0.00"/>                        
+                    </h:outputText>   
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBBoleto.valor}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>
+                <p:column headerText="Desconto" width="10%">                   
+                    <h:outputText value="#{item.desconto}">
+                        <f:convertNumber pattern="R$ ###,###,##0.00"/>                        
+                    </h:outputText>  
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBBoleto.desconto}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>
+                <p:column headerText="Receber" width="10%">                   
+                    <h:outputText value="#{item.valor - item.desconto}">
+                        <f:convertNumber pattern="R$ ###,###,##0.00"/>                        
+                    </h:outputText>     
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBBoleto.recebido}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>
+                <p:column headerText="Cliente">
+                    <h:outputText value="#{item.cliente.cpf}"/>
+                </p:column>              
+                <p:column headerText="Status">
+                    <h:outputText value="#{item.status}"/>
+                </p:column> 
+                <p:column headerText="Opções">
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBBoleto.cancelamento(item.code)}" update="frmTabela:tabela :msgGlobal" title="Remover" rendered="#{item.status == 'Aguardando pagamento'}"/>
+                    <p:link href="#{item.link}" target="_blank" rendered="#{item.status == 'Aguardando pagamento'}">
+                        <p:button icon="ui-icon-image" title="Ver boleto"/>
+                    </p:link>
+                    <p:commandButton icon="ui-icon-plusthick" title="Detalhes da venda" onclick="PF('dlgDetalhes').show();" update="painelDetalhes">
+                        <f:setPropertyActionListener target="#{MBBoleto.boleto}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:blockUI block="frmTabela" trigger="remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI> 
+                </p:column>
+            </p:dataTable>
+        </h:form> 
+
+        <p:dialog widgetVar="dlgSaldo" closable="true" draggable="false" resizable="false" header="Consulta de saldo" modal="true" appendTo="@(body)" height="100px">
+            <h:form id="frmSaldo">                
+                <h:panelGrid columns="2">
+                    <p:panelGrid columns="2">
+                        <h:outputText value="Total" style="font-weight: bold"/>
+                        <h:outputText value="#{MBBoleto.total}" style="color: green">
+                            <f:convertNumber pattern="R$ 0.00"/>
+                        </h:outputText>
+                        <h:outputText value="Aguardando" style="font-weight: bold"/>
+                        <h:outputText value="#{MBBoleto.aguardando}" style="color: red">
+                            <f:convertNumber pattern="R$ 0.00"/>
+                        </h:outputText>                  
+                        <h:outputText value="Liberado" style="font-weight: bold"/>
+                        <h:outputText value="#{MBBoleto.liberado}" style="color: blue">
+                            <f:convertNumber pattern="R$ 0.00"/>
+                        </h:outputText>
+                    </p:panelGrid>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Pedir transferência" title="Pedir transferência" id="excluir" actionListener="#{MBBoleto.pedirTransferencia()}"  oncomplete="PF('dlgSaldo').hide();" update=":msgGlobal"/>
+                    </h:panelGrid>
+                    <p:blockUI block="frmTabela" trigger="frmSaldo:excluir">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="frmSaldo" trigger="frmSaldo:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog> 
+        
+        <p:dialog widgetVar="dlgToken" closable="true" draggable="false" resizable="false" header="Token" modal="true" appendTo="@(body)" height="100px">
+            <h:form id="frmToken">                
+                <h:panelGrid columns="1">
+                    <p:inputText value="#{MBBoleto.token}" size="100" maxlength="200" required="true" requiredMessage="Preencha o campo token"/>
+                    <h:panelGrid columns="1">
+                        <p:commandButton value="Alterar token" actionListener="#{MBBoleto.alterarToken()}"  title="Alterar token" id="alterar"  oncomplete="PF('dlgToken').hide();" update=":msgGlobal"/>
+                    </h:panelGrid>
+                    <p:blockUI block="frmTabela" trigger="frmToken:alterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="frmSaldo" trigger="frmSaldo:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog> 
+
+        <p:dialog widgetVar="dlgTransacao" width="90%" closable="true" draggable="false" resizable="false" header="Transações boleto fácil" modal="true" appendTo="@(body)" position="top">
+            <h:form id="frmTransacao">             
+                <p:dataTable value="#{MBBoleto.listaTransacao}" var="tran" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Sem informações">
+                    <f:facet name="header">
+                        <h:outputText value="Transações boleto fácil"/>
+                    </f:facet>
+                    <p:column headerText="Data">
+                        <h:outputText value="#{tran.data}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>
+                    </p:column> 
+                    <p:column headerText="Valor">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{tran.valor}">
+                            <f:convertNumber pattern="0.00"/> 
+                        </h:outputText>
+                    </p:column> 
+                    <p:column headerText="Desconto">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{tran.desconto}">
+                            <f:convertNumber pattern="0.00"/> 
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Recebido">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{tran.valor - tran.desconto}">
+                            <f:convertNumber pattern="0.00"/>  
+                        </h:outputText>                      
+                    </p:column>                   
+                </p:dataTable>
+            </h:form>
+        </p:dialog> 
+
+        <p:dialog widgetVar="dlgDetalhes" closable="true" draggable="false" resizable="false" header="Detalhes do boleto" modal="true" appendTo="@(body)">
+            <h:panelGrid columns="2" id="painelDetalhes">
+                <p:outputLabel value="Codigo:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.code}"/>       
+                <p:outputLabel value="Criação:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.criacao}">
+                    <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                </p:outputLabel>  
+                <p:outputLabel value="Vencimento:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.vencimento}">
+                    <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                </p:outputLabel>  
+                <p:outputLabel value="Nome:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.cliente.nome}"/>  
+                <p:outputLabel value="Telefone:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.cliente.telefone}"/>  
+                <p:outputLabel value="Descrição:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.descricao}"/>                
+                <p:outputLabel value="Valor do boleto:"/>                
+                <p:outputLabel value="#{MBBoleto.boleto.valor}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>    
+                <p:outputLabel value="Desconto:"/>                
+                <p:outputLabel value="#{MBBoleto.boleto.desconto}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>    
+                <p:outputLabel value="Valor a receber:"/>                
+                <p:outputLabel value="#{MBBoleto.boleto.valor - MBBoleto.boleto.desconto}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>    
+                <p:outputLabel value="Status:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.status}"/>
+                <p:outputLabel value="Total de parcelas:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.totaParcelas}"/>
+                <p:outputLabel value="Parcela atual:"/>
+                <p:outputLabel value="#{MBBoleto.boleto.parcela}"/>
+            </h:panelGrid>            
+        </p:dialog>    
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloMaster.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBSistema.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBSistema.lista}" filteredValue="#{MBSistema.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="3" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de sistemas"/>
+                </f:facet>  
+                <p:column headerText="Icone" width="10%">
+                    <p:graphicImage library="uploadFotos" name="#{item.codigo}.jpg" width="90%"/>
+                </p:column> 
+                <p:column headerText="Detalhes" width="15%">
+                    <h:panelGrid columns="1" style="border-color: beige ">
+                        <p:outputLabel value="Nome: #{item.nome}"/>                       
+                        <p:outputLabel value="Versão: #{item.versao}"/>                        
+                        <p:outputLabel value="Ramo: #{item.ramo}"/>                                             
+                    </h:panelGrid>                      
+                </p:column>                
+                <p:column headerText="Opções">
+                    <p:commandButton icon=" ui-icon-document" ajax="false" title="Baixar documentação">      
+                        <p:fileDownload value="#{MBSistema.dowloadTxt(item.codigo,item.nome)}"/>
+                    </p:commandButton>                             
+                    <p:commandButton icon="ui-icon-arrowthick-1-s" ajax="false" title="Baixar sistema">
+                        <p:fileDownload value="#{MBSistema.dowloadSistema(item.codigo,item.nome)}"/>
+                    </p:commandButton>                                        
+                    <p:commandButton icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover sistema">
+                        <f:setPropertyActionListener target="#{MBSistema.sistema}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar sistema">
+                        <f:setPropertyActionListener target="#{MBSistema.sistema}" value="#{item}"/>
+                    </p:commandButton> 
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+
+                </p:column>              
+            </p:dataTable>
+        </h:form>       
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" title="Registrar novo usuário" id="btregistrar" actionListener="#{MBSistema.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de sistema" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome"/>
+                    <p:inputText value="#{MBSistema.sistema.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputText  value="#{MBSistema.sistema.descricao}" size="30"  required="true" requiredMessage="O campo descrição é obrigatorio" autocomplete="off" maxlength="200"/>
+                    <p:outputLabel value="Ramo"/>
+                    <p:inputText value="#{MBSistema.sistema.ramo}" size="30" maxlength="30" required="true" requiredMessage="O campo ramo é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Versão"/>
+                    <p:inputText value="#{MBSistema.sistema.versao}" size="30"  required="true" requiredMessage="O campo versão é obrigatorio" autocomplete="off" maxlength="10"/>
+                    <p:outputLabel value="Caminho"/>
+                    <p:inputText value="#{MBSistema.sistema.caminho}" size="30"  required="true" requiredMessage="O campo caminho é obrigatorio" autocomplete="off" maxlength="100"/>
+                    <p:outputLabel value="Banco"/>
+                    <p:inputText value="#{MBSistema.sistema.banco}" size="30"  required="true" requiredMessage="O campo banco é obrigatorio" autocomplete="off" maxlength="30"/>
+                    <p:outputLabel value="Senha"/>
+                    <p:inputText value="#{MBSistema.sistema.senha}" size="30"  required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off" maxlength="30"/>
+                    <p:outputLabel value="Foto"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadFotos}" allowTypes="/(\.|\/)(jpe?g)$/" invalidFileMessage="Somente são aceitos arquivos jpeg" update=":msgGlobal"/>
+                    <p:outputLabel value="Tutorial"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadTxt}" allowTypes="/(\.|\/)(txt?)$/" invalidFileMessage="Somente são aceitos arquivos txt" update=":msgGlobal"/>
+                    <p:outputLabel value="Sistema"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadSistema}" allowTypes="/(\.|\/)(rar?)$/" invalidFileMessage="Somente são aceitos arquivos rar" update=":msgGlobal"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" title="Confirmar cadastro" id="salvar" actionListener="#{MBSistema.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de sistema" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBSistema.sistema.codigo}"/>
+                    <p:outputLabel value="Nome"/>
+                    <p:inputText value="#{MBSistema.sistema.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputText  value="#{MBSistema.sistema.descricao}" size="30"  required="true" requiredMessage="O campo descrição é obrigatorio" autocomplete="off" maxlength="200"/>
+                    <p:outputLabel value="Ramo"/>
+                    <p:inputText value="#{MBSistema.sistema.ramo}" size="30" maxlength="30" required="true" requiredMessage="O campo ramo é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Versão"/>
+                    <p:inputText value="#{MBSistema.sistema.versao}" size="30"  required="true" requiredMessage="O campo versão é obrigatorio" autocomplete="off" maxlength="10"/>
+                    <p:outputLabel value="Caminho"/>
+                    <p:inputText value="#{MBSistema.sistema.caminho}" size="30"  required="true" requiredMessage="O campo caminho é obrigatorio" autocomplete="off" maxlength="100"/>
+                    <p:outputLabel value="Banco"/>
+                    <p:inputText value="#{MBSistema.sistema.banco}" size="30"  required="true" requiredMessage="O campo banco é obrigatorio" autocomplete="off" maxlength="30"/>
+                    <p:outputLabel value="Senha"/>
+                    <p:inputText value="#{MBSistema.sistema.senha}" size="30"  required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off" maxlength="30"/>
+                    <p:outputLabel value="Foto"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadFotos}" allowTypes="/(\.|\/)(jpe?g)$/" invalidFileMessage="Somente são aceitos arquivos jpeg" update=":msgGlobal"/>
+                    <p:outputLabel value="Tutorial"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadTxt}" allowTypes="/(\.|\/)(txt?)$/" invalidFileMessage="Somente são aceitos arquivos txt" update=":msgGlobal"/>
+                    <p:outputLabel value="Sistema"/>
+                    <p:fileUpload label="Carregar" auto="true" mode="advanced" fileUploadListener="#{MBSistema.uploadSistema}" allowTypes="/(\.|\/)(rar?)$/" invalidFileMessage="Somente são aceitos arquivos rar" update=":msgGlobal"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" title="Confirmar alterações" id="editar" actionListener="#{MBSistema.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form> 
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de sistema" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Nome:"/>
+                    <h:outputText value="#{MBSistema.sistema.nome}" />
+                    <h:outputText value="Versão"/>
+                    <h:outputText value="#{MBSistema.sistema.versao}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBSistema.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">   
+    
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBBoleto.carregarCadastro()}" type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="conteudo">
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Criação de boletos"/>
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">
+            <p:panelGrid columns="1" style="margin-left: 10px;">
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Cliente"/>
+                    <p:selectOneMenu value="#{MBBoleto.boleto.cliente.codigo}" filter="true" required="true" requiredMessage="Selecione um cliente">
+                        <f:selectItem itemLabel="Selecione um cliente" itemValue="#{null}"/>
+                        <f:selectItems value="#{MBBoleto.listaCliente}" var="cliente" itemValue="#{cliente.codigo}" itemLabel="#{cliente.nome}"/>                    
+                    </p:selectOneMenu>
+                </h:panelGrid>
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputText value="#{MBBoleto.boleto.descricao}" size="40" maxlength="100" placeholder="Descrição do boleto" required="true" requiredMessage="Preencha o campo descrição" autocomplete="off"/>
+                </h:panelGrid>
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Valor"/>
+                    <p:inputText value="#{MBBoleto.boleto.valor}" size="40" maxlength="7" required="true" requiredMessage="Preencha o campo valor" autocomplete="off" placeholder="Valor" converterMessage="O campo valor somente aceita numeros" validatorMessage="O campo valor não aceita valores menores que 10.00">
+                        <f:validateDoubleRange minimum="10.00"/>                        
+                    </p:inputText>
+                </h:panelGrid>
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Total de parcelas"/>                
+                    <p:selectOneMenu value="#{MBBoleto.boleto.totaParcelas}" required="true" requiredMessage="Selecione o total de parcelas">
+                        <f:selectItem itemLabel="1" itemValue="1"/>   
+                        <f:selectItem itemLabel="2" itemValue="2"/>   
+                        <f:selectItem itemLabel="3" itemValue="3"/>   
+                        <f:selectItem itemLabel="4" itemValue="4"/>   
+                        <f:selectItem itemLabel="5" itemValue="5"/>   
+                        <f:selectItem itemLabel="6" itemValue="6"/>   
+                        <f:selectItem itemLabel="7" itemValue="7"/>   
+                        <f:selectItem itemLabel="8" itemValue="8"/>   
+                        <f:selectItem itemLabel="9" itemValue="9"/>   
+                        <f:selectItem itemLabel="10" itemValue="10"/>   
+                        <f:selectItem itemLabel="11" itemValue="11"/>   
+                        <f:selectItem itemLabel="12" itemValue="12"/>   
+                    </p:selectOneMenu>     
+                </h:panelGrid>
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Primeiro vencimento"/>
+                    <p:calendar value="#{MBBoleto.boleto.vencimento}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo vencimento" placeholder="Primeiro vencimento" />
+                </h:panelGrid>
+                <h:panelGrid columns="2" style="margin-top: 10px">
+                    <p:commandButton value="Salvar" id="salvar" icon="ui-icon-plusthick" actionListener="#{MBBoleto.novaCobranca()}" update=":msgGlobal"/>
+                    <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" outcome="Boleto.xhtml"/>
+                   
+                </h:panelGrid>  
+            </p:panelGrid> 
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

@@ -1,0 +1,24 @@
+<Familia>
+  <parentes>
+    <Parente id="1">
+      <grau>Mãe</grau>
+      <nome>Veronica</nome>
+      <idade>53</idade>
+    </Parente>
+    <Parente id="2">
+      <grau>Pai</grau>
+      <nome>Leandro</nome>
+      <idade>53</idade>
+    </Parente>
+    <Parente id="3">
+      <grau>Irmão</grau>
+      <nome>Felipe</nome>
+      <idade>18</idade>
+    </Parente>
+    <Parente id="4">
+      <grau>Primo</grau>
+      <nome>Juliano</nome>
+      <idade>38</idade>
+    </Parente>
+  </parentes>
+</Familia>

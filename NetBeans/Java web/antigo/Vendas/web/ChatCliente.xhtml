@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloIndex.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+
+    <ui:define name="conteudo">
+        <h:form id="form">
+            <h:panelGrid columns="2">
+                <p:poll immediate="true" interval="1" update="form:mensagens" />
+                <p:inputTextarea id="mensagens" rows="10" cols="50" /> 
+                <p:inputTextarea rows="5" cols="50" />
+                <p:commandButton value="Enviar" onclick="alert('testando');" />
+            </h:panelGrid>>
+        </h:form>
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Quem é você?" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">                   
+                    <p:outputLabel value="Email"/>
+                    <p:inputText required="true" requiredMessage="Preencha o campo email" autocomplete="off"/>
+                    <p:outputLabel value="Nome"/>
+                    <p:inputText required="true" requiredMessage="Preencha o campo nome" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Iniciar chat" id="salvar" oncomplete="verificar2(xhr, status, args, 'dlgNovo')"  update=":frmNovo :msgGlobal"/>
+                    </h:panelGrid></center>
+                <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>
+            </h:form>            
+        </p:dialog>
+    </ui:define>    
+</ui:composition>

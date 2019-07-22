@@ -1,0 +1,31 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Cadastro de produto</title>
+<link rel="stylesheet" type="text/css"
+	href="resources/css/cadastro_usuario.css" />
+</head>
+<body>
+	<%
+		   out.println("<a href='CadastroProduto?redirect=2'><button>Voltar</button></a><hr/>");	
+	%>
+  <fieldset>
+		<legend>Cadastro de produto</legend>
+		<form action="salvarUsuario" method="post">
+		    <input type="hidden" name="id" value="${produto.id}"> 
+		    <input type="hidden" name="crud" value="<%=request.getParameter("crud") %>"> 
+		    <input type="text" maxlength="60" required="required" placeholder="Digite seu nome" title="Digite seu nome"	name="nome" value="${usuario.nome }" />
+		    <input type="text" maxlength="20" required="required" placeholder="Digite seu telefone" title="Digite seu telefone"	name="telefone" value="${usuario.telefone }" />
+			<input type="email" maxlength="60" required="required" placeholder="Digite seu e-mail" title="Digite seu email"	name="email" value="${usuario.email }" />
+			<input type="password" maxlength="60" required="required" placeholder="Digite sua senha" title="Digite sua senha" name="senha" value="${usuario.senha }" />
+			<input type="submit" value="Finalzar" title="Deseja registrar?" />
+		</form>
+		<div id="msg">
+		   <h3><%if(request.getAttribute("msg") != null){out.println(request.getAttribute("msg"));}%></h3>
+		</div>
+	</fieldset>
+  </body>
+</html>

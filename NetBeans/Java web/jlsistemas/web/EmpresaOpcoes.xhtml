@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBEmpresa.acao}"/>
+            <f:viewParam name="codigo" value="#{MBEmpresa.codigo}"/>
+            <f:event listener="#{MBEmpresa.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo"> 
+        <p:panel header="Cadastro de empresas" style="border-radius: 15px; background-color: blue; font-weight: bold ">
+            <h:form id="frmNovo">
+                <p:panel class="bordas">                    
+                    <h:panelGrid columns="3">
+                        <h:panelGrid columns="1">
+                            <p:outputLabel value="Razão social"/>
+                            <p:inputText value="#{MBEmpresa.empresa.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Cnpj"/>
+                            <p:inputText value="#{MBEmpresa.empresa.cnpj}" size="30"  required="true" requiredMessage="O campo cnpj é obrigatorio" autocomplete="off" maxlength="20" readonly="#{MBEmpresa.acao == 'excluir'}"/>                    
+                            <p:outputLabel value="Email"/>
+                            <p:inputText value="#{MBEmpresa.empresa.email}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Senha"/>
+                            <p:inputText value="#{MBEmpresa.empresa.senha}" size="30" maxlength="30" required="true" requiredMessage="O campo senha é obrigatorio" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Fone"/>
+                            <p:inputText value="#{MBEmpresa.empresa.telefone}" size="30"  required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off" maxlength="20" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Situação" rendered="#{MBEmpresa.acao != 'excluir'}"/>
+                            <p:selectOneMenu value="#{MBEmpresa.empresa.situacao}" style="width: 88%" rendered="#{MBEmpresa.acao != 'excluir'}">
+                                <f:selectItem itemLabel="Regular" itemValue="Regular"/>      
+                                <f:selectItem itemLabel="Irregular" itemValue="Irregular"/>                              
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        <h:panelGrid columns="1">
+                            <p:outputLabel value="Estado" rendered="#{MBEmpresa.acao != 'excluir'}"/>
+                            <p:selectOneMenu value="#{MBEmpresa.empresa.estado}" style="width: 88%" rendered="#{MBEmpresa.acao != 'excluir'}">
+                                <f:selectItem itemLabel="Acre" itemValue="AC"/>      
+                                <f:selectItem itemLabel="Alagoas" itemValue="AL"/>   
+                                <f:selectItem itemLabel="Amapá" itemValue="AP"/>      
+                                <f:selectItem itemLabel="Amazonas" itemValue="AM"/>   
+                                <f:selectItem itemLabel="Bahia" itemValue="BA"/>      
+                                <f:selectItem itemLabel="Ceará" itemValue="CE"/>   
+                                <f:selectItem itemLabel="Distrito Federal" itemValue="DF"/>      
+                                <f:selectItem itemLabel="Espirito Santo" itemValue="ES"/>   
+                                <f:selectItem itemLabel="Goiás" itemValue="GO"/>      
+                                <f:selectItem itemLabel="Maranhão" itemValue="MA"/>   
+                                <f:selectItem itemLabel="Mato Grosso" itemValue="MT"/>      
+                                <f:selectItem itemLabel="Mato Grosso do Sul" itemValue="MS"/>   
+                                <f:selectItem itemLabel="Minas Gerais" itemValue="MG"/>      
+                                <f:selectItem itemLabel="Pará" itemValue="PA"/>   
+                                <f:selectItem itemLabel="Paraiba" itemValue="PB"/>      
+                                <f:selectItem itemLabel="Paraná" itemValue="PR"/>   
+                                <f:selectItem itemLabel="Pernanbuco" itemValue="PE"/>      
+                                <f:selectItem itemLabel="Piauí" itemValue="PI"/>   
+                                <f:selectItem itemLabel="Rio de Janeiro" itemValue="RJ"/>      
+                                <f:selectItem itemLabel="Rio Grande do Norte" itemValue="RN"/>   
+                                <f:selectItem itemLabel="Rio Grande do Sul" itemValue="RS"/>      
+                                <f:selectItem itemLabel="Rondônia" itemValue="RO"/>   
+                                <f:selectItem itemLabel="Roraima" itemValue="RR"/>      
+                                <f:selectItem itemLabel="Santa Catarina" itemValue="SC"/>   
+                                <f:selectItem itemLabel="São Paulo" itemValue="SP"/>      
+                                <f:selectItem itemLabel="Sergipe" itemValue="SE"/>   
+                                <f:selectItem itemLabel="Tocantins" itemValue="TO"/>                              
+                            </p:selectOneMenu>        
+                            <p:outputLabel value="Cidade"/>
+                            <p:inputText value="#{MBEmpresa.empresa.cidade}" size="30"  required="true" requiredMessage="O campo cidade é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Bairro"/>
+                            <p:inputText value="#{MBEmpresa.empresa.bairro}" size="30"  required="true" requiredMessage="O campo bairro é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Rua"/>
+                            <p:inputText value="#{MBEmpresa.empresa.rua}" size="30"  required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Numero"/>
+                            <p:inputText value="#{MBEmpresa.empresa.numero}" size="30"  required="true" requiredMessage="O campo numero é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Cep"/>
+                            <p:inputText value="#{MBEmpresa.empresa.cep}" size="30"  required="true" requiredMessage="O campo cep é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                        </h:panelGrid>
+                        <h:panelGrid columns="1">
+                            <p:outputLabel value="Mensalidade" />
+                            <p:inputText  value="#{MBEmpresa.empresa.mensalidade}" size="30"  required="true" requiredMessage="O campo mensalidade é obrigatorio" autocomplete="off" converterMessage="O campo mensalidade somente aceita numeros" validatorMessage="O campo mensalidade não aceita valores menores que 0.00" readonly="#{MBEmpresa.acao == 'excluir'}">
+                                <f:validateDoubleRange minimum="0.00"/>
+                            </p:inputText>                                                  
+                            <p:outputLabel value="Sistema" rendered="#{MBEmpresa.acao != 'excluir'}"/>
+                            <p:selectOneMenu value="#{MBEmpresa.empresa.sistema}" filter="true"  required="true" requiredMessage="Escolha um sistema para poder cadastrar a empresa" converter="sistemaConverter" style="width: 88%" rendered="#{MBEmpresa.acao != 'excluir'}">
+                                <f:selectItem itemLabel="Escolha um sistema" itemValue="#{null}"/>
+                                <f:selectItems value="#{MBEmpresa.listaSistemas}" var="sistema" itemValue="#{sistema}" itemLabel="#{sistema.nome}"/>                                              
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Caminho"/>
+                            <p:inputText value="#{MBEmpresa.empresa.caminho}" size="30"  required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off" maxlength="100" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Banco"/>
+                            <p:inputText value="#{MBEmpresa.empresa.banco}" size="30"  required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off" maxlength="60" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                            <p:outputLabel value="Senha do banco"/>
+                            <p:inputText value="#{MBEmpresa.empresa.senhaBanco}" size="30" maxlength="30" required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off" readonly="#{MBEmpresa.acao == 'excluir'}"/>
+                        </h:panelGrid>                   
+                    </h:panelGrid>  
+                </p:panel>
+                <h:panelGrid columns="4">                       
+                    <p:commandButton value="Salvar" title="Salvar" id="salvar" actionListener="#{MBEmpresa.salvar()}" update=":frmNovo :msgGlobal" rendered="#{MBEmpresa.acao == 'novo'}" class="botao"/>
+                    <p:commandButton value="Alterar" title="Alterar" id="editar" actionListener="#{MBEmpresa.alterar()}" update=":msgGlobal" rendered="#{MBEmpresa.acao == 'editar'}" class="botao"/>
+                    <p:commandButton value="Excluir" title="Excluir" id="excluir" actionListener="#{MBEmpresa.excluir()}" update=":msgGlobal" rendered="#{MBEmpresa.acao == 'excluir'}" class="botao"/>
+                    <p:button value="Voltar" title="Voltar" id="voltar" outcome="Empresa.xhtml" class="botao"/>  
+                </h:panelGrid>
+                <p:blockUI block="frmNovo" trigger="frmNovo:salvar :frmNovo:editar :frmNovo:excluir">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>    
+            </h:form>           
+        </p:panel>            
+    </ui:define>    
+</ui:composition>
+

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"                
+                xmlns:h="http://xmlns.jcp.org/jsf/html">    
+    <ui:define name="metadata">
+
+    </ui:define>  
+    <ui:define name="conteudo">   
+        <h:form id="p" style="margin-top: 30px;"> 
+            <h:panelGrid columns="1" style="color: #041b54; margin: 0 auto;">
+                <h:outputLabel value="CONTATO" style="font-size: 2em; font-weight: bold"/>
+            </h:panelGrid>
+            <h:panelGrid columns="1" style="color: #041b54; margin: 0 auto; border-bottom: 1px solid black; ">
+                <h:outputLabel style="font-weight: bold; font-size: 0.8em" value="Para orçamentos, duvidas ou sugestões entre em contato conosco através do formulário abaixo"/>
+            </h:panelGrid>
+            <h:panelGrid columns="1" style="margin: 0 auto; border-radius: 10px; padding: 10px; margin-top: 30px; background-color: #e6e6e6 ">
+                <h:panelGrid columns="1">
+                    <h:outputLabel value="Nome" class="label"/>
+                    <p:inputText value="#{MBContato.contato.nome}"  maxlength="60" size="60" required="true" requiredMessage="Preencha o campo nome" style="border-radius: 10px"/>
+                    <h:outputLabel value="Telefone" class="label"/>
+                    <p:inputMask mask="(99) 9 9999-9999 " value="#{MBContato.contato.fone}" size="20" required="true" requiredMessage="Preencha o campo telefone" style="border-radius: 10px"/>
+                    <h:outputLabel value="Email" class="label"/>
+                    <p:inputText value="#{MBContato.contato.email}" maxlength="60" size="20" required="true" requiredMessage="Preencha o campo email" style="border-radius: 10px"/>
+                </h:panelGrid>  
+                <h:panelGrid columns="1">
+                    <h:outputLabel class="label" value="Mensagem"/>
+                    <p:inputTextarea value="#{MBContato.contato.motivo}" rows="5" cols="60" required="true" requiredMessage="Preencha o campo motivo do contato" maxlength="200" style="border-radius: 10px"/>
+                </h:panelGrid> 
+                <p:commandButton value="Enviar" id="enviar" actionListener="#{MBContato.salvar()}" update=":p :msgGlobal"/>                    			   
+                <p:blockUI block="p" trigger=":p:enviar">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>  
+            </h:panelGrid>
+            <h:panelGrid columns="1" style="color: #041b54; margin: 0 auto; padding-top: 20px;">
+                <h:outputLabel value="Em breve retornaremos sua mensagem" style="font-size: 1.2em; font-weight: bold"/>
+            </h:panelGrid>
+        </h:form>
+    </ui:define>    
+</ui:composition>
+
+
+
+
+

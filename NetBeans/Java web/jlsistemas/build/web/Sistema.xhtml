@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBSistema.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">        
+        <h:form id="registrar"> 
+            <h:panelGrid >
+                <p:button value="Registrar" outcome="SistemaOpcoes.xhtml" title="Registrar" class="botao">
+                    <f:param name="acao" value="novo"/>
+                </p:button>
+            </h:panelGrid>
+        </h:form>   
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBSistema.lista}" filteredValue="#{MBSistema.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="3" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de sistemas"/>
+                </f:facet>  
+                <p:column headerText="Icone" width="10%">
+                    <p:graphicImage library="uploadFotos" name="#{item.codigo}.jpg" width="90%"/>
+                </p:column> 
+                <p:column headerText="Detalhes" width="20%">
+                    <h:panelGrid columns="1" style="border-color: white ">
+                        <h:outputText value="Nome: #{item.nome}"/>                       
+                        <h:outputText value="Versão: #{item.versao}"/>                        
+                        <h:outputText value="Ramo: #{item.ramo}"/>                                             
+                    </h:panelGrid>                      
+                </p:column>                 
+                <p:column headerText="Opções">
+                    <p:commandButton icon=" ui-icon-document" ajax="false" title="Baixar documentação" class="botao1">      
+                        <p:fileDownload value="#{MBSistema.dowloadTxt(item.codigo,item.nome)}"/>
+                    </p:commandButton>                             
+                    <p:commandButton icon="ui-icon-arrowthick-1-s" ajax="false" title="Baixar sistema" class="botao1">
+                        <p:fileDownload value="#{MBSistema.dowloadSistema(item.codigo,item.nome)}"/>
+                    </p:commandButton>                                        
+                    <p:button icon="ui-icon-trash" title="Remover" outcome="SistemaOpcoes.xhtml" class="botao1">
+                        <f:param name="acao" value="excluir"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="SistemaOpcoes.xhtml" class="botao1">
+                        <f:param name="acao" value="editar"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>                   
+                </p:column>              
+            </p:dataTable>
+        </h:form>        
+    </ui:define>
+</ui:composition>
+

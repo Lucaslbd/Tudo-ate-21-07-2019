@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBUsuario.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBUsuario.listaUsuario}" filteredValue="#{MBUsuario.listaUsuarioFiltrada}" var="usuario" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de usuários"/>
+                </f:facet>                 
+                <p:column headerText="Nome">
+                    <h:outputText value="#{usuario.nome}"/>
+                </p:column>
+                <p:column headerText="Cpf" width="10%">
+                    <h:outputText value="#{usuario.cpf}"/>
+                </p:column>    
+                <p:column headerText="Função" width="10%">
+                    <h:outputText value="#{usuario.tipo}"/>
+                </p:column>    
+                <p:column headerText="Deposito">
+                    <h:outputText value="#{usuario.deposito.razaoSocial}"/>
+                </p:column>
+                <p:column headerText="Cidade">
+                    <h:outputText value="#{usuario.deposito.cidade}"/>
+                </p:column>                               
+                <p:column headerText="Opções" width="15%">
+                    <p:commandButton icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover usuário" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBUsuario.usuario}" value="#{usuario}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar cadastro" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBUsuario.usuario}" value="#{usuario}"/>
+                    </p:commandButton> 
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+        </h:form>       
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" title="Registrar novo usuário" id="btregistrar" actionListener="#{MBUsuario.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de usuário" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBUsuario.usuario.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask id="cpf" mask="999.999.999-99" value="#{MBUsuario.usuario.cpf}" size="30"  required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                    <p:outputLabel value="Tipo" for="tipo"/>
+                    <p:selectOneMenu id="tipo" value="#{MBUsuario.usuario.tipo}" filter="true">
+                        <f:selectItem itemLabel="Administrador(a)" itemValue="Administrador(a)"/>
+                        <f:selectItem itemLabel="Usuário(a)" itemValue="Usuário(a)"/>                                          
+                    </p:selectOneMenu>                   
+                    <p:outputLabel value="Senha" for="senha"/>
+                    <p:password value="#{MBUsuario.usuario.senha}" id="senha" size="30" maxlength="15" required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" title="Confirmar cadastro" id="salvar" actionListener="#{MBUsuario.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar cadastro" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de usuário" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBUsuario.usuario.codigo}"/>
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBUsuario.usuario.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask id="cpf" mask="999.999.999-99" value="#{MBUsuario.usuario.cpf}" size="30"  required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                    <p:outputLabel value="Tipo" for="tipo"/>
+                    <p:selectOneMenu id="tipo" value="#{MBUsuario.usuario.tipo}" filter="true">
+                        <f:selectItem itemLabel="Administrador(a)" itemValue="Administrador(a)"/>
+                        <f:selectItem itemLabel="Usuário(a)" itemValue="Usuário(a)"/>                          
+                    </p:selectOneMenu>                     
+                    <p:outputLabel value="Senha" for="senha"/>
+                    <p:password value="#{MBUsuario.usuario.senha}" id="senha" size="30" maxlength="15" required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" title="Confirmar alterações" id="editar" actionListener="#{MBUsuario.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form> 
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de usuário" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBUsuario.usuario.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBUsuario.usuario.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBUsuario.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFornecedor.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:form>
+            <h:panelGrid columns="2" style="margin-bottom: 5px">
+                <p:button value="Registrar" icon="ui-icon-disk" title="Registrar" outcome="fornecedor_cadastro.xhtml">
+                    <f:param name="acao" value="#{1}"/>
+                </p:button>                 
+            </h:panelGrid>
+        </h:form>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFornecedor.lista}" filteredValue="#{MBFornecedor.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de fornecedores"/>
+                </f:facet>  
+                <p:column headerText="Nome" filterBy="#{item.nome}">
+                    <h:outputText value="#{item.nome}"/>                      
+                </p:column>
+                <p:column headerText="Telefone">
+                    <h:outputText value="#{item.telefone}"/>
+                </p:column>
+                <p:column headerText="Tempo de pagamento">
+                    <h:outputText value="Paga em #{item.tempoPagamento} dias"/>                     
+                </p:column>  
+                <p:column headerText="Porcentagem">
+                    <h:outputText value="#{item.porcentagemPagamento}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                    <h:outputLabel value=" % por venda"/>
+                </p:column>                             
+                <p:column headerText="Opções">                    
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBFornecedor.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="fornecedor_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>                    
+                    <p:button icon="ui-icon-note" title="Histórico do fornecedor" outcome="fornecedor_historico.xhtml">
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>  
+                    <p:blockUI block="frmTabela" trigger="remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI> 
+        </h:form>             
+    </ui:define>    
+</ui:composition>
+

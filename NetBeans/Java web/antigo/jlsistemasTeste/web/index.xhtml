@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloIndex.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+
+    <ui:define name="conteudo">
+        <div id="d" style="border:1px solid black; background-color: beige; height:150px ">
+            <h:form id="login">
+                <p:focus context="login"/>
+                <p:toolbar>
+                    <f:facet name="left">
+                        <h:outputText value="Autenticação"/>
+                    </f:facet>
+                </p:toolbar>           
+                <h:panelGrid columns="3" style="margin-left: 2%; margin-top: 1%">
+                    <p:outputLabel value="Email"/>
+                    <p:inputText value="#{MBAutenticacao.email}" required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off"/>
+                    <h:outputLabel/>
+                    <p:outputLabel value="Senha"/>
+                    <p:password size="20" value="#{MBAutenticacao.senha}" required="true" requiredMessage="O campo senha é obrigatorio" />
+                    <p:commandButton value="Entrar" style="background-color: chartreuse" id="entrar" action="#{MBAutenticacao.entrar()}" update=":msgGlobal"/>
+                    <h:outputLabel/>  
+                    <h:outputLabel class="minha" value="Esqueci minha senha!"  onclick="PF('dlgNovo').show();"/>
+                </h:panelGrid>               
+            </h:form>
+        </div>     
+        <p:blockUI block="login" trigger="login:entrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>         
+
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Recuperação de senha" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">                   
+                    <p:outputLabel value="Email"/>
+                    <p:inputText value="#{MBAutenticacao.emailRecuperar}" required="true" requiredMessage="O campo email é necessario para recuperação" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Solicitar" id="salvar" actionListener="#{MBAutenticacao.recuperarSenha()}" oncomplete="verificar2(xhr, status, args, 'dlgNovo')"  update=":frmNovo :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar operação" actionListener="#{MBAutenticacao.limparEmail()}" update=":frmNovo" oncomplete="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+                <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>
+            </h:form>            
+        </p:dialog>
+    </ui:define>    
+</ui:composition>
+

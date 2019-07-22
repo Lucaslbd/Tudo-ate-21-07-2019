@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBSistema.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">         
+        <h:form id="frmTabela">    
+            <h:panelGrid columns="1" style="margin: 0 auto; padding-top: 20px; text-align: center">
+                <h:outputLabel value="Bem vindo a página de download da JL Sistemas" style="font-size: 2em; color: #041b54; font-weight: bold;"/>
+                <h:outputLabel value="Não esqueça de baixar a documentação para entender como o sistema funciona"/>
+            </h:panelGrid>
+            <p:dataGrid value="#{MBSistema.lista}" var="item" columns="1" rows="1" paginator="true" paginatorPosition="bottom" layout="grid" emptyMessage="Nenhum registro encontrado" style="margin-top: 20px;">
+                <p:panel style="background-color: #f8f8f6;">
+                    <h:panelGrid columns="1" style="background-color: #36586F; margin: 0 auto; border-radius: 20px; padding: 5px;">
+                        <h:panelGrid columns="2">                        
+                            <p:graphicImage library="uploadFotos" name="#{item.codigo}.png" width="100px" height="100px"/> 
+                            <h:panelGrid columns="1" style="color: white; font-weight: bold; font-size: 2em; text-align: center">
+                                <h:outputText value="Nome: #{item.nome}"/>                       
+                                <h:outputText value="Versão: #{item.versao}"/>                        
+                                <h:outputText value="Ramo: #{item.ramo}"/>                                             
+                            </h:panelGrid>
+                        </h:panelGrid>                   
+                        <h:panelGrid columns="2">
+                            <h:inputTextarea rows="6" cols="70" readonly="true" value="#{item.descricao}" style="resize: none; border: none; text-align: center; color: white; background-color: #273f57; border-radius: 10px; padding: 10px;"/>                   
+                            <h:panelGrid columns="1">
+                                <p:commandButton icon=" ui-icon-document" value="Baixar Documentação" ajax="false" title="Baixar Documentação" class="botao1" style="width: 140px">      
+                                    <p:fileDownload value="#{MBSistema.dowloadTxt(item.codigo,item.nome)}"/>
+                                </p:commandButton>                             
+                                <p:commandButton icon="ui-icon-arrowthick-1-s" value="Baixar Software" ajax="false" title="Baixar Software" class="botao1" style="width: 140px">
+                                    <p:fileDownload value="#{MBSistema.dowloadSistema(item.codigo,item.nome)}"/>
+                                </p:commandButton>
+                            </h:panelGrid>
+                        </h:panelGrid>
+                    </h:panelGrid>
+                </p:panel>
+            </p:dataGrid>
+        </h:form>        
+    </ui:define>
+</ui:composition>
+

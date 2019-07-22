@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBVeiculo.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBVeiculo.lista}" filteredValue="#{MBVeiculo.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de veiculos para entrega"/>
+                </f:facet>                 
+                <p:column headerText="Placa">
+                    <h:outputText value="#{item.placa}"/>
+                </p:column>               
+                <p:column headerText="Marca">
+                    <h:outputText value="#{item.marca}"/>
+                </p:column>  
+                <p:column headerText="Categoria">
+                    <h:outputText value="#{item.categoria}"/>
+                </p:column>  
+                <p:column headerText="Modelo">
+                    <h:outputText value="#{item.modelo}"/>
+                </p:column>               
+                <p:column headerText="Opções"  width="15%">
+                    <p:commandButton  icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover registro" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBVeiculo.veiculo}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar informações" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBVeiculo.veiculo}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBVeiculo.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Adicionar novo registro"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Cadastro" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Placa"/>
+                    <p:inputText value="#{MBVeiculo.veiculo.placa}" size="30"  required="true" requiredMessage="O campo placa é obrigatorio" autocomplete="off" maxlength="15"/>
+                    <p:outputLabel value="Marca"/>
+                    <p:inputText value="#{MBVeiculo.veiculo.marca}" size="30"  required="true" requiredMessage="O campo marca é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                    <p:outputLabel value="Categoria"/>   
+                    <p:inputText value="#{MBVeiculo.veiculo.categoria}" size="30"  required="true" requiredMessage="O campo cetegoria é obrigatorio" autocomplete="off" maxlength="15"/>
+                    <p:outputLabel value="Modelo"/>
+                    <p:inputText value="#{MBVeiculo.veiculo.modelo}" size="30"  required="true" requiredMessage="O campo modelo é obrigatorio" autocomplete="off" maxlength="15"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBVeiculo.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar operação" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de registro" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBVeiculo.veiculo.codigo}"/>
+                    <p:outputLabel value="Placa"/>
+                    <p:inputText value="#{MBVeiculo.veiculo.placa}" size="30"  required="true" requiredMessage="O campo placa é obrigatorio" autocomplete="off" maxlength="15"/>
+                    <p:outputLabel value="Marca"/>
+                    <p:inputText value="#{MBVeiculo.veiculo.marca}" size="30"  required="true" requiredMessage="O campo marca é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                    <p:outputLabel value="Categoria"/>   
+                    <p:inputText value="#{MBVeiculo.veiculo.categoria}" size="30"  required="true" requiredMessage="O campo cetegoria é obrigatorio" autocomplete="off" maxlength="15"/>
+                    <p:outputLabel value="Modelo"/>
+                    <p:inputText value="#{MBVeiculo.veiculo.modelo}" size="30"  required="true" requiredMessage="O campo modelo é obrigatorio" autocomplete="off" maxlength="15"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Confirmar" title="Confirmar alterações" id="editar" actionListener="#{MBVeiculo.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de registro" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <p:outputLabel value="OBS: Ao remover um veiculo também serão removidos seus respectivos registros" style="color: red"/>
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBVeiculo.veiculo.codigo}" />
+                    <h:outputText value="Placa"/>
+                    <h:outputText value="#{MBVeiculo.veiculo.placa}" />
+                    <h:outputText value="Modelo"/>
+                    <h:outputText value="#{MBVeiculo.veiculo.modelo}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBVeiculo.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <!--Final formulario excluir-->  
+    </ui:define>
+</ui:composition>
+

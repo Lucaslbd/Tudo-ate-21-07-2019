@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/ModeloCaixa.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <!--.......................................................................................--> 
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <!--.......................................................................................--> 
+    <ui:define name="esquerda">
+        <h:form id="teste">
+            <h:panelGrid columns="1">
+                <p:focus context="teste"/>
+                <p:outputLabel value="Codigo"/>   
+                <p:inputText  widgetVar="codigo" value="#{MBVenda.codigoProduto}" autocomplete="off" required="true" requiredMessage="Digite o codigo do produto"/> 
+                <p:outputLabel value="Quantidade"/>   
+                <p:inputText id="quantidade" value="#{MBVenda.quantidade}" required="true" requiredMessage="Digite a quantidade" converterMessage="O campo quantidade somente aceita numeros inteiros" validatorMessage="O campo preco não aceita valores menor que 1">
+                    <f:validateDoubleRange minimum="1"/>
+                </p:inputText>
+                <p:commandButton value="Adicionar" actionListener="#{MBVenda.addItem()}" update=":teste :frmTabela:tabela :msgGlobal" style="width:99%; background-color:yellowgreen" />
+            </h:panelGrid>
+            <center><p:graphicImage library="upload" name="#{MBVenda.produto.codigo}.jpg"/></center>
+        </h:form>       
+    </ui:define>
+    <!--.......................................................................................-->
+    <ui:define name="conteudo">
+        <h:form>
+            <p:toolbar>
+                <f:facet name="left">
+                    <h:outputText value="Atendente: #{MBAutenticacao.funcionarioLogado.nome}"/>
+                </f:facet>
+                <f:facet name="right">
+                    <p:commandButton value="Cancelar operação" accesskey="o" actionListener="#{MBVenda.cancelarVenda()}" update=":teste :frmTabela:tabela :msgGlobal" style="background-color:red;"/>
+                </f:facet>
+            </p:toolbar>
+        </h:form>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBVenda.listaItens}" var="item" rowIndexVar="numero" rows="12" paginator="true" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="#{MBVenda.produto.descricao}"/>
+                </f:facet>
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{numero +1}"/>
+                </p:column>
+                <p:column headerText="Codigo">
+                    <h:outputText value="#{item.produto.codigo}"/>
+                </p:column>
+                <p:column headerText="Produto">
+                    <h:outputText value="#{item.produto.descricao}"/>
+                </p:column>
+                <p:column headerText="Valor unitario" width="10%">
+                    <h:outputText value="#{item.produto.preco}" >
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor" width="10%">
+                    <h:outputText value="#{item.valor}" >
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                    <f:facet name="footer">
+                        <h:outputText value="#{MBVenda.venda.valor}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText>
+                    </f:facet>
+                </p:column>
+                <p:column headerText="Quantidade" width="10%">
+                    <h:outputText value="#{item.quantidade}"/>
+                </p:column>  
+                <p:column headerText="Opções" width="10%">                    
+                    <p:commandButton icon="ui-icon-trash" style="height: 20px" actionListener="#{MBVenda.remover(item)}" update=":frmTabela:tabela :teste :msgGlobal"/>                                          
+                </p:column>
+            </p:dataTable>
+            <center><p:commandButton value="Finalizar" accesskey="p" actionListener="#{MBVenda.atribuiValor()}" oncomplete="PF('dlgFinalizar').show();" update=":frmFinalizar" style="width:99%; background-color:yellowgreen"/></center>
+        </h:form>
+        <!--.......................................................................................-->
+        <p:dialog widgetVar="dlgFinalizar" width="450px" closable="false" draggable="false" resizable="false" header="Finalizar operação" modal="true" appendTo="@(body)">
+            <h:form id="frmFinalizar">                 
+                <h:panelGrid columns="3" style="float:right;">
+                    <h:outputLabel value="R$" style="font-size:50px;"/>
+                    <h:outputText value="#{MBVenda.valorPagar}" style="font-size:50px; color:red; font-weight:bold">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </h:panelGrid> 
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="Pagamento"/>  
+                    <p:selectOneMenu value="#{MBVenda.formaPagamento}">                              
+                        <f:selectItem itemLabel="Dinheiro" itemValue="Dinheiro"/>
+                        <f:selectItem itemLabel="Debito" itemValue="Debito"/>
+                        <f:selectItem itemLabel="Credito" itemValue="Credito"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Recebido"/>
+                    <p:inputText size="10" value="#{MBVenda.valorPago}" required="true" converterMessage="O campo preco somente aceita numeros" validatorMessage="O campo preco não aceita valores menores que 0.00" requiredMessage="O campo velor recebido é obrigatorio" autocomplete="off" maxlength="20">
+                        <f:validateDoubleRange minimum="0.00"/>
+                    </p:inputText>
+                </h:panelGrid>                             
+                <br><p:commandButton id="fin" style="width:99%; background-color:yellowgreen" value="Finalizar" actionListener="#{MBVenda.salvar()}" oncomplete="verificar(xhr, status, args, 'dlgFinalizar','table' )" update=":frmFinalizar :teste :frmTabela:tabela :msgGlobal"/></br>                       
+                <p:blockUI block="frmFinalizar" trigger="frmFinalizar:fin">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>
+            </h:form>          
+        </p:dialog>         
+    </ui:define>
+</ui:composition>

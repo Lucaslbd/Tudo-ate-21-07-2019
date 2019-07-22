@@ -1,0 +1,9 @@
+function pesquisar(){
+	var form = document.getElementById("pesquisar");
+	form.submit();
+}
+
+function focar(){
+	var p = document.getElementById("pesquisar");
+	p.focus();
+}

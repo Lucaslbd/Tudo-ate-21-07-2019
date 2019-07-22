@@ -1,0 +1,276 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBCliente.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">
+            <p:toolbar>                
+                <f:facet name="right">
+                    <p:commandButton id="mail" icon="ui-icon-mail-closed" value="Enviar email" actionListener="#{MBCliente.limparEmail()}" oncomplete="PF('dlgEmail').show();"  update=":frmEnviar:painelEmail" style="background-color:yellowgreen;"/>
+                </f:facet>
+            </p:toolbar>
+            <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:mail">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBCliente.listaCliente}" filteredValue="#{MBCliente.listaClienteFiltrada}" var="cliente" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Cadastro de clientes"/>
+                </f:facet>                 
+                <p:column headerText="Nome" filterBy="#{cliente.nome}" filterStyle="width:80%">
+                    <h:outputText value="#{cliente.nome}"/>
+                </p:column>               
+                <p:column headerText="Telefone" width="10%">
+                    <h:outputText value="#{cliente.telefone}"/>
+                </p:column>  
+                <p:column headerText="Cidade" width="12%"  filterBy="#{cliente.cidade}" filterStyle="width:80%">
+                    <h:outputText value="#{cliente.cidade}"/>
+                </p:column>  
+                <p:column headerText="Bairro" width="12%"  filterBy="#{cliente.bairro}" filterStyle="width:80%">
+                    <h:outputText value="#{cliente.bairro}"/>
+                </p:column>  
+                <p:column headerText="Rua" filterBy="#{cliente.rua}" filterStyle="width:80%">
+                    <h:outputText value="#{cliente.rua}"/>
+                </p:column>  
+                <p:column headerText="N°" width="5%">
+                    <h:outputText value="#{cliente.numero}"/>
+                </p:column>  
+                <p:column headerText="Opções"  width="15%">
+                    <p:commandButton  icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Excluir cliente" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCliente.cliente}" value="#{cliente}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar informações" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCliente.cliente}" value="#{cliente}"/>
+                    </p:commandButton> 
+                    <p:commandButton icon="ui-icon-plus" id="mais" oncomplete="PF('dlgDados').show();" update=":frmDados:panelDados" title="Mais informações" style="height:20px">
+                        <f:setPropertyActionListener target="#{MBCliente.cliente}" value="#{cliente}"/>
+                    </p:commandButton> 
+                    <p:commandButton icon="ui-icon-search" id="history" title="Ver compras ja realizadas" actionListener="#{MBCliente.listarPorVenda(cliente.codigo)}" oncomplete="PF('dlgHistorico').show();" update=":dlHistorico :msgGlobal" style="height:20px"/>                       
+                    <p:blockUI block="frmTabela:tabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar :frmTabela:tabela:mais :frmTabela:tabela:history">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+        </h:form>         
+        <h:form id="registrar">                     
+            <center><p:commandButton value="Registrar" id="btregistrar" actionListener="#{MBCliente.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo" title="Adicionar cliente"/></center>
+        </h:form>
+        <p:blockUI block="registrar" trigger="registrar:btregistrar">                
+            <p:graphicImage library="imagens" name="carregar.gif"/>
+        </p:blockUI>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" id="r" closable="false" draggable="false" resizable="false" header="Cadastro de cliente" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Email"/>
+                    <p:selectOneMenu value="#{MBCliente.email}" id="email">
+                        <p:ajax event="change" update=":frmNovo:panelNovo"/>  
+                        <f:selectItem itemLabel="Não tem email" itemValue="#{false}"/>
+                        <f:selectItem itemLabel="Tem email" itemValue="#{true}"/>                        
+                    </p:selectOneMenu> 
+                    <p:outputLabel value="Email" rendered="#{MBCliente.email}"/>
+                    <p:inputText rendered="#{MBCliente.email}" value="#{MBCliente.cliente.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBCliente.cliente.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask id="cpf" mask="999.999.999-99" value="#{MBCliente.cliente.cpf}" size="30"  required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                    <p:outputLabel value="RG" for="rg"/>   
+                    <p:inputText id="rg" value="#{MBCliente.cliente.rg}" size="30"  required="true" requiredMessage="O campo rg é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Fone" for="fone"/>
+                    <p:inputText value="#{MBCliente.cliente.telefone}" id="fone" size="30" maxlength="15" required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Cidade" for="cidade"/>
+                    <p:inputText value="#{MBCliente.cliente.cidade}" id="cidade" size="30" maxlength="60" required="true" requiredMessage="O campo cidade é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Bairro" for="bairro"/>
+                    <p:inputText value="#{MBCliente.cliente.bairro}" id="bairro" size="30" maxlength="60" required="true" requiredMessage="O campo bairro é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Rua" for="rua"/>
+                    <p:inputText value="#{MBCliente.cliente.rua}" id="rua" size="30" maxlength="60" required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="N°" for="numero"/>
+                    <p:inputText value="#{MBCliente.cliente.numero}" id="numero" size="30" maxlength="10" required="true" requiredMessage="O campo numero é obrigatorio" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar cadastro" id="salvar" actionListener="#{MBCliente.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table')" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar operação" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmNovo" trigger="frmNovo:salvar :frmNovo:email">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de cliente" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBCliente.cliente.codigo}"/>
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBCliente.cliente.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask id="cpf" mask="999.999.999-99" value="#{MBCliente.cliente.cpf}" size="30"  required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off" maxlength="15"/>                    
+                    <p:outputLabel value="RG" for="rg"/>   
+                    <p:inputText id="rg" value="#{MBCliente.cliente.rg}" size="30"  required="true" requiredMessage="O campo rg é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Email" for="email"/>
+                    <p:inputText id="email" value="#{MBCliente.cliente.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Fone" for="fone"/>
+                    <p:inputText value="#{MBCliente.cliente.telefone}" id="fone" size="30" maxlength="60" required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Cidade" for="cidade"/>
+                    <p:inputText value="#{MBCliente.cliente.cidade}" id="cidade" size="30" maxlength="60" required="true" requiredMessage="O campo cidade é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Bairro" for="bairro"/>
+                    <p:inputText value="#{MBCliente.cliente.bairro}" id="bairro" size="30" maxlength="60" required="true" requiredMessage="O campo bairro é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Rua" for="rua"/>
+                    <p:inputText value="#{MBCliente.cliente.rua}" id="rua" size="30" maxlength="60" required="true" requiredMessage="O campo rua é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="N°" for="numero"/>
+                    <p:inputText value="#{MBCliente.cliente.numero}" id="numero" size="30" maxlength="10" required="true" requiredMessage="O campo numero é obrigatorio" autocomplete="off"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Confirmar" title="Confirmar alterações" id="editar" actionListener="#{MBCliente.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>  
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de cliente" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBCliente.cliente.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBCliente.cliente.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBCliente.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario excluir--> 
+        <p:dialog widgetVar="dlgEmail" id="email" closable="false" draggable="false" resizable="false" header="Envio de emails" modal="true" appendTo="@(body)">
+            <h:form id="frmEnviar">
+                <h:panelGrid columns="2" id="painelEmail">
+                    <p:outputLabel value="Email"/>
+                    <p:outputLabel value="#{MBCliente.MBAutenticacao.usuario.deposito.email}"/>
+                    <p:outputLabel value="Senha"/>
+                    <p:password value="#{MBCliente.senha}" size="30"  required="true" requiredMessage="O campo senha é obrigatorio"/>                    
+                    <p:outputLabel value="Assunto"/>
+                    <p:inputText value="#{MBCliente.assunto}" size="25" required="true" requiredMessage="O campo assunto é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Mensagem"/>
+                    <p:inputTextarea value="#{MBCliente.conteudo}" rows="10" style="width: 500px;" required="true" requiredMessage="Digite o corpo do email" />
+                </h:panelGrid>
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Registrar" title="Confirmar envio" id="enviar" actionListener="#{MBCliente.enviarEmail()}"  oncomplete="verificar(xhr, status, args, 'dlgEmail','table')" update=":msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar operação" actionListener="#{MBCliente.limparEmail()}" oncomplete="PF('dlgEmail').hide();" process="@this">
+                            <p:resetInput target="painelEmail"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>    
+            <p:blockUI block="frmEnviar" trigger="frmEnviar:enviar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+
+        <p:dialog widgetVar="dlgDados" closable="true" draggable="false" resizable="false" header="Informações detalhadas" modal="true" appendTo="@(body)">
+            <h:form id="frmDados">
+                <h:panelGrid columns="2" id="panelDados">
+                    <p:outputLabel value="Codigo"/>
+                    <h:outputText value="#{MBCliente.cliente.codigo}"/>
+                    <p:outputLabel value="Nome"/>
+                    <h:outputText value="#{MBCliente.cliente.nome}"/>
+                    <p:outputLabel value="Cpf"/>
+                    <h:outputText value="#{MBCliente.cliente.cpf}"/>                    
+                    <p:outputLabel value="RG"/>   
+                    <h:outputText value="#{MBCliente.cliente.rg}"/>
+                    <p:outputLabel value="Email"/>
+                    <h:outputText value="#{MBCliente.cliente.email}"/>
+                    <p:outputLabel value="Fone"/>
+                    <h:outputText value="#{MBCliente.cliente.telefone}"/>
+                    <p:outputLabel value="Cidade"/>
+                    <h:outputText value="#{MBCliente.cliente.cidade}"/>
+                    <p:outputLabel value="Bairro"/>
+                    <h:outputText value="#{MBCliente.cliente.bairro}"/>
+                    <p:outputLabel value="Rua"/>
+                    <h:outputText value="#{MBCliente.cliente.rua}"/>
+                    <p:outputLabel value="N°"/>
+                    <h:outputText value="#{MBCliente.cliente.numero}"/>
+                </h:panelGrid>                  
+            </h:form>             
+        </p:dialog>
+
+        <p:dialog widgetVar="dlgHistorico" width="90%" id="dlHistorico" closable="true" draggable="false" resizable="false" header="Compras do cliente" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela3">             
+                <p:dataTable value="#{MBCliente.listaVenda}" var="venda" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Sem histórico de compras">
+                    <f:facet name="header">
+                        <h:outputText value="Cliente comprador"/>
+                    </f:facet>
+                    <p:column headerText="Data">
+                        <h:outputText value="#{venda.venda.data}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>
+                    </p:column> 
+                    <p:column headerText="Tipo">
+                        <h:outputText value="#{venda.venda.entrega}"/>
+                    </p:column> 
+                    <p:column headerText="Pagamento">
+                        <h:outputText value="#{venda.venda.formaPagamento}"/>
+                    </p:column>
+                    <p:column headerText="Valor">
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{venda.venda.valor}">
+                            <f:convertNumber pattern="0.00"/>  
+                        </h:outputText>                      
+                    </p:column> 
+                    <p:column headerText="Opções">                      
+                        <p:commandButton icon="ui-icon-search" title="Itens da venda" actionListener="#{MBItem.listarPorVenda(venda.venda.codigo)}" oncomplete="PF('dlgItem').show();" update=":dlItem :msgGlobal" style="height:20px"/>       
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </p:dialog> 
+
+        <p:dialog widgetVar="dlgItem" width="95%" id="dlItem" closable="true" draggable="false" resizable="false" header="Lista de itens" modal="true" appendTo="@(body)">
+            <h:form id="frmTabela2">             
+                <p:dataTable value="#{MBItem.listaItem}" var="ite" paginator="true" rows="11" paginatorPosition="bottom" emptyMessage="Nenhum registro encontrado">
+                    <f:facet name="header">
+                        <h:outputText value="Relação de itens da venda"/>
+                    </f:facet>
+                    <p:column headerText="Produto">
+                        <h:outputText value="#{ite.produto.nome}"/>
+                    </p:column> 
+                    <p:column headerText="Casco">
+                        <h:outputText value="#{ite.casco}"/>
+                    </p:column> 
+                    <p:column headerText="Quantidade">
+                        <h:outputText value="#{ite.quantdade}"/>
+                    </p:column>
+                    <p:column headerText="Valor">
+                        <h:outputText value="#{ite.valor}">
+                            <f:convertNumber pattern="0.00"/>
+                        </h:outputText> 
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </p:dialog>      
+    </ui:define>
+</ui:composition>
+

@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">    
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBGrupo.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:panelGrid columns="2" style="margin: 10px">
+            <h:panelGrid columns="2">
+                <h:form>            
+                    <p:button value="Registrar" icon="ui-icon-plusthick" title="Registrar" outcome="grupo_cadastro.xhtml">
+                        <f:param name="acao" value="#{1}"/>
+                    </p:button>                    
+                </h:form>
+            </h:panelGrid>            
+        </h:panelGrid>
+        <h:form id="frmTabela">              
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBGrupo.lista}" filteredValue="#{MBGrupo.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de viagens"/>
+                </f:facet>  
+                <p:column headerText="Nome" filterBy="#{item.nome_grupo}">
+                    <h:outputText value="#{item.nome_grupo}"/>                      
+                </p:column>
+                <p:column headerText="Data" filterBy="#{item.dataFormatada}">                    
+                    <h:outputText value="#{item.dataFormatada}"/>
+                </p:column>
+                <p:column headerText="Valor de venda">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.valor_venda}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>                     
+                </p:column> 
+                <p:column headerText="Status" filterBy="#{item.situacao}">                    
+                    <h:outputText value="#{item.situacao}"/>
+                </p:column>
+                <p:column headerText="Opções">                    
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBGrupo.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="grupo_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button> 
+                    <p:commandButton icon="ui-icon-check" actionListener="#{MBGrupo.alterarStatus(item.codigo)}"  oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Alterar status"/>
+                    <p:commandButton icon="ui-icon-note" id="hist" title="Lista de passageiros" actionListener="#{MBGrupo.listarPax(item.codigo)}" oncomplete="PF('dlgHistorico').show();PF('table2').clearFilters();" update="formHistorico"/>
+                    <p:blockUI block="frmTabela" trigger="hist remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif"/>
+                    </p:blockUI> 
+                </p:column>                  
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>  
+
+
+        <p:dialog widgetVar="dlgHistorico" closable="true" draggable="false" resizable="false" header="Lista de passageiros" modal="true" appendTo="@(body)" position="center top">
+            <h:form id="formHistorico">
+                <p:commandButton value="Imprimir lista" icon="ui-icon-print" action="#{MBGrupo.listaPassageiro()}" update=":msgGlobal" title="Lista de passageiros" onclick="this.form.target = '_blank'" ajax="false" style="margin-bottom: 5px;" rendered="#{MBGrupo.listapax.size() > 0}"/> 
+                <p:dataTable id="tabela2" widgetVar="table2" value="#{MBGrupo.listapax}" filteredValue="#{MBGrupo.listaFiltradapax}" var="item2" rowIndexVar="index" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                    <f:facet name="header">
+                        <h:outputText value="Lista de passageiros"/>
+                    </f:facet>
+                    <p:column headerText="N°" width="5%">
+                        <h:outputText value="#{index + 1}"/>
+                    </p:column>
+                    <p:column headerText="Nome" filterBy="#{item2.cliente.nome}">
+                        <h:outputText value="#{item2.cliente.nome}"/>                      
+                    </p:column>
+                    <p:column headerText="RG" filterBy="#{item2.cliente.rg}" width="11%">
+                        <h:outputText value="#{item2.cliente.rg}"/>
+                    </p:column>
+                    <p:column headerText="Cpf" width="12%" filterBy="#{item2.cliente.cpf}">
+                        <h:outputText value="#{item2.cliente.cpf}"/>                     
+                    </p:column>  
+                    <p:column headerText="Telefone" width="13%">
+                        <h:outputText value="#{item2.cliente.telefone}"/>                       
+                    </p:column>  
+                    <p:column headerText="Valor" width="10%">
+                        <h:outputText value="#{item2.valor}">
+                            <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                        </h:outputText>                     
+                    </p:column> 
+                    <p:column headerText="Status" width="8%" filterBy="#{item2.status}">
+                        <h:outputText value="#{item2.status}"/>                       
+                    </p:column>                    
+                </p:dataTable>
+                <p:blockUI block="formHistorico" trigger="formHistorico:tabela2">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI> 
+            </h:form>
+        </p:dialog>   
+    </ui:define>    
+</ui:composition>
+

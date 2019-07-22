@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:form>
+            <h:panelGrid columns="3" style="margin:10px">
+                <h:panelGrid columns="1">
+                    <p:button value="Registrar" icon="ui-icon-disk" title="Registrar" outcome="venda_cadastro.xhtml">
+                        <f:param name="acao" value="#{1}"/>
+                    </p:button>  
+                </h:panelGrid>
+                <h:panelGrid columns="2" style="margin: 0 auto">
+                    <h:panelGrid columns="2">
+                        <p:selectOneMenu value="#{MBVenda.pesquisa}" filter="true">
+                            <p:ajax event="change" update="pesquisa:data :msgGlobal"/>  
+                            <f:selectItem itemLabel="Buscar por data" itemValue="1"/>
+                            <f:selectItem itemLabel="Buscar por referêcia" itemValue="2"/>                                                       
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+                    <h:form id="pesquisa">                        
+                        <h:panelGrid id="data" columns="2">
+                            <p:calendar value="#{MBVenda.data1}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data1" placeholder="Data 1" rendered="#{MBVenda.pesquisa == 1}"/>
+                            <p:calendar value="#{MBVenda.data2}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data2" placeholder="Data 2" rendered="#{MBVenda.pesquisa == 1}"/>
+                            <p:inputText value="#{MBVenda.referencia}" required="true" requiredMessage="Preencha o campo referência" placeholder="Referência" rendered="#{MBVenda.pesquisa == 2}"/>
+                        </h:panelGrid>                        
+                    </h:form>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton id="pesquisar" title="Pesquisar" value="Pesquisar" icon="ui-icon-circle-zoomin" actionListener="#{MBVenda.listar()}" update="frmTabela:tabela :msgGlobal" style="margin-left: 5px"/>
+                    <p:blockUI block="frmTabela" trigger="pesquisar">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI> 
+                </h:panelGrid>
+            </h:panelGrid>
+        </h:form>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBVenda.lista}" filteredValue="#{MBVenda.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de vendas"/>
+                </f:facet>  
+                <p:column headerText="Data da venda" width="10%">
+                    <h:outputText value="#{item.dataVenda}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>                     
+                </p:column>                
+                <p:column headerText="Fornecedor">
+                    <h:outputText value="#{item.fornecedor.nome}"/>                     
+                </p:column>   
+                <p:column headerText="Referência">
+                    <h:outputText value="#{item.referencia}"/>                     
+                </p:column>   
+                <p:column headerText="Total" width="10%">
+                    <p:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.valorPacote + item.taxas}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>   
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBVenda.total}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>   
+                <p:column headerText="C/agência" width="10%">
+                    <p:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.valorReceber}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>   
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBVenda.comissao}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>   
+                <p:column headerText="C/Vendedor" width="10%">
+                    <p:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.comissaoFunc}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>   
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBVenda.comissaoFunc}">
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>  
+                <p:column headerText="Lucro" width="10%">
+                    <p:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.valorReceber - item.comissaoFunc}">
+                        <f:convertNumber pattern="###,###,##0.00"/>
+                    </h:outputText>   
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="R$ "/>
+                        <h:outputText value="#{MBVenda.lucro}">
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>  
+                <p:column headerText="Opções">                    
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBVenda.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="venda_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>    
+                    <p:commandButton icon="ui-icon-plusthick" title="Detalhes da venda" onclick="PF('dlgDetalhes').show();" update="painelDetalhes">
+                        <f:setPropertyActionListener target="#{MBVenda.venda}" value="#{item}"/>
+                    </p:commandButton>      
+                    <p:blockUI block="frmTabela" trigger="remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI>
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI> 
+        </h:form> 
+
+        <p:dialog widgetVar="dlgDetalhes" closable="true" draggable="false" resizable="false" header="Detalhes da venda" modal="true" appendTo="@(body)">
+            <h:panelGrid columns="2" id="painelDetalhes">
+                <p:outputLabel value="Data da venda:"/>
+                <p:outputLabel value="#{MBVenda.venda.dataVenda}">
+                    <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                </p:outputLabel>  
+                <p:outputLabel value="Data a receber:"/>
+                <p:outputLabel value="#{MBVenda.venda.dataReceber}">
+                    <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                </p:outputLabel>  
+                <p:outputLabel value="Fornecedor:"/>
+                <p:outputLabel value="#{MBVenda.venda.fornecedor.nome}"/>
+                <p:outputLabel value="Vendedor:"/>
+                <p:outputLabel value="#{MBVenda.venda.funcionario.nome}"/>
+                <p:outputLabel value="Cliente:"/>
+                <p:outputLabel value="#{MBVenda.venda.cliente.nome}"/>
+                <p:outputLabel value="Descrição do serviço:"/>
+                <p:outputLabel value="#{MBVenda.venda.descricao}"/>
+                <p:outputLabel value="Referência da venda:"/>
+                <p:outputLabel value="#{MBVenda.venda.referencia}"/>
+                <p:outputLabel value="Valor do serviço:"/>                
+                <p:outputLabel value="#{MBVenda.venda.valorPacote}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>
+                <p:outputLabel value="Total em taxas:"/>                
+                <p:outputLabel value="#{MBVenda.venda.taxas}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>
+                <p:outputLabel value="Total do pacote:"/>                
+                <p:outputLabel value="#{MBVenda.venda.taxas + MBVenda.venda.valorPacote}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>
+                <p:outputLabel value="Comissão da agência:"/>                
+                <p:outputLabel value="#{MBVenda.venda.valorReceber}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>
+                <p:outputLabel value="Comissão do vendedor:"/>                
+                <p:outputLabel value="#{MBVenda.venda.comissaoFunc}">
+                    <f:convertNumber pattern="R$ ###,###,##0.00"/>
+                </p:outputLabel>               
+                <p:outputLabel value="Data do checkin:"/>
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="#{MBVenda.venda.dataCheckin}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                    </p:outputLabel>  
+                    <p:outputLabel value="as #{MBVenda.venda.horaCheckin}"/>
+                </h:panelGrid>
+                <p:outputLabel value="Status do recebimento:"/>
+                <p:outputLabel value="#{MBVenda.venda.status}"/>
+            </h:panelGrid>            
+        </p:dialog>    
+    </ui:define>    
+</ui:composition>
+

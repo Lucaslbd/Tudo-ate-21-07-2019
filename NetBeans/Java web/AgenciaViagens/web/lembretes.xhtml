@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBLembretes.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:form>
+            <h:panelGrid columns="2" style="margin-bottom: 5px">
+                <p:button value="Registrar" icon="ui-icon-disk" title="Registrar" outcome="lembretes_cadastro.xhtml">
+                    <f:param name="acao" value="#{1}"/>
+                </p:button>                 
+            </h:panelGrid>
+        </h:form>
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBLembretes.lista}" filteredValue="#{MBLembretes.listaFiltrada}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de lembretes"/>
+                </f:facet>  
+                <p:column headerText="Data" filterBy="#{item.dataFormatada}" width="15%">
+                    <h:outputText value="#{item.dataFormatada}"/>                      
+                </p:column>
+                <p:column headerText="Descrição" filterBy="#{item.texto}">
+                    <h:outputText value="#{item.texto}"/>
+                </p:column>                         
+                <p:column headerText="Opções" width="15%">                    
+                    <p:commandButton icon="ui-icon-trash" actionListener="#{MBLembretes.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="lembretes_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button>                      
+                </p:column>
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI> 
+        </h:form>          
+    </ui:define>    
+</ui:composition>
+

@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBLembretes.acao}"/>  
+            <f:viewParam name="codigo" value="#{MBLembretes.codigo}"/>  
+            <f:event listener="#{MBLembretes.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo">  
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Cadastro de lembretes"/>
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">            
+            <p:panelGrid columns="1" style="padding: 30px; margin: 20px">
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Data"/>
+                    <p:calendar value="#{MBLembretes.lembtete.data}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data" rendered="#{MBLembretes.acao != 2}" autocomplete="off" />
+                </h:panelGrid>
+                <h:panelGrid columns="1">
+                    <p:outputLabel value="Descrição"/>
+                    <p:inputTextarea value="#{MBLembretes.lembtete.texto}" rows="5" cols="40"  maxlength="85" required="true" requiredMessage="Preencha o campo descrição" readonly="#{MBLembretes.acao == 2}"/>
+                </h:panelGrid>
+                <h:panelGrid columns="5">
+                    <p:commandButton value="Salvar" id="salvar" icon="ui-icon-plusthick" actionListener="#{MBLembretes.salvar()}" update=":msgGlobal" rendered="#{MBLembretes.acao == 1}"/>
+                    <p:commandButton value="Alterar" icon="ui-icon-pencil" actionListener="#{MBLembretes.alterar()}" update=":msgGlobal" rendered="#{MBLembretes.acao == 3}"/>
+                    <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" outcome="lembretes.xhtml"/>
+                </h:panelGrid> 
+            </p:panelGrid>
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

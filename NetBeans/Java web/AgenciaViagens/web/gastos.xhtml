@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo1.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">    
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo"> 
+        <h:panelGrid columns="2" style="margin: 10px">
+            <h:panelGrid columns="2">
+                <h:form>            
+                    <p:button value="Registrar" icon="ui-icon-plusthick" title="Registrar" outcome="gasto_cadastro.xhtml">
+                        <f:param name="acao" value="#{1}"/>
+                    </p:button>                    
+                </h:form>
+            </h:panelGrid>
+            <h:panelGrid columns="3" style="margin: 0 auto">
+                <h:form id="pesquisa">
+                    <p:calendar value="#{MBGastos.data1}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data1" placeholder="Data 1" />
+                    <p:calendar value="#{MBGastos.data2}" mask="99/99/9999" pattern="dd/MM/yyyy" required="true" requiredMessage="Preencha o campo data2" placeholder="Data 2" />
+                    <p:commandButton id="pesquisar" value="Pesquisar" icon="ui-icon-circle-zoomin" actionListener="#{MBGastos.listar()}" update="frmTabela:tabela :msgGlobal" style="margin-left: 5px"/>
+                    <p:blockUI block="frmTabela" trigger="pesquisa:pesquisar">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI> 
+                </h:form>
+            </h:panelGrid>
+        </h:panelGrid>
+        <h:form id="frmTabela">              
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBGastos.lista}" var="item" paginator="true" paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Registro de gastos"/>
+                </f:facet>  
+                <p:column headerText="Descrição">
+                    <h:outputText value="#{item.descricao}"/>                      
+                </p:column>
+                <p:column headerText="Data">                    
+                    <h:outputText value="#{item.dataFormatada}"/>
+                </p:column>
+                <p:column headerText="Valor">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText> 
+                    <f:facet name="footer">                       
+                        <p:outputLabel value="Total R$ "/>
+                        <h:outputText id="total" value="#{MBGastos.total}" >
+                            <f:convertNumber pattern="###,###,##0.00"/>  
+                        </h:outputText>                                                  
+                    </f:facet>
+                </p:column>                                         
+                <p:column headerText="Opções">                    
+                    <p:commandButton icon="ui-icon-trash" id="remover" actionListener="#{MBGastos.excluir(item.codigo)}" oncomplete="PF('table').clearFilters();" update="frmTabela:tabela :msgGlobal" title="Remover"/>
+                    <p:button icon="ui-icon-pencil" title="Alterar" outcome="gasto_cadastro.xhtml">
+                        <f:param name="acao" value="#{3}"/>
+                        <f:param name="codigo" value="#{item.codigo}"/>
+                    </p:button> 
+                    <p:blockUI block="frmTabela" trigger="remover">                
+                        <p:graphicImage library="imagens" name="carregar.gif" />                
+                    </p:blockUI>
+                </p:column>                  
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="frmTabela:tabela">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>             
+    </ui:define>    
+</ui:composition>
+

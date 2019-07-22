@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">   
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">           
+
+        <center>
+            <h:panelGrid id="pnlPesquisa" columns="5" style="margin: 1%;">  
+                <h:form id="formPesquisa" >
+                    <h:outputText value="Inicio: "/>
+                    <p:calendar  value="#{MBItem.data1}" required="true" requiredMessage="Preencha a data de inicio" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                               
+                    <h:outputText value=" Final: "/>
+                    <p:calendar value="#{MBItem.data2}" required="true" requiredMessage="preencha a data final" mask="99/99/9999" pattern="dd/MM/yyyy"/>                                              
+                    <p:commandButton id="pesquisa" value="Pesquisar" actionListener="#{MBItem.listar()}" oncomplete="PF('table').filter();" update=":frmTabela:tabela :msgGlobal" style="margin-left: 5px"/>                       
+                </h:form>
+            </h:panelGrid>                
+        </center>                 
+        <h:form id="frmTabela">    
+            <p:toolbar>
+                <f:facet name="left">
+                    <h:outputText value="Ir para modo de visualização venda: "  style="color: blue"/>
+                    <p:commandButton value="Ir" action="#{MBItem.paginaVenda()}" update=":msgGlobal"  style="background-color:yellowgreen"/>
+                </f:facet>
+            </p:toolbar>  
+            <p:dataTable id="tabela" widgetVar="table" rowIndexVar="numero" value="#{MBItem.listaItem}" filteredValue="#{MBItem.listaItemFiltrado}" var="item" paginator="true"  paginatorPosition="bottom" rows="10" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Consulta de vendas por item"/>
+                </f:facet>
+                <p:column headerText="Data" width="11%">
+                    <h:outputText value="#{item.venda.data}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column> 
+                <p:column headerText="Produto" filterBy="#{item.produto.nome}" filterStyle="max-width:80%;">
+                    <h:outputText value="#{item.produto.nome}"/>
+                </p:column>
+                <p:column headerText="Pagamento" filterBy="#{item.venda.formaPagamento}" filterStyle="width:80%" width="11%">
+                    <h:outputText value="#{item.venda.formaPagamento}"/>
+                </p:column>
+                <p:column headerText="Tipo" filterBy="#{item.venda.entrega}"  width="9%">
+                    <h:outputText value="#{item.venda.entrega}"/>
+                </p:column>
+                <p:column headerText="Casco" filterBy="#{item.casco}"  width="9%">
+                    <h:outputText value="#{item.casco}"/>
+                </p:column>
+                <p:column headerText="Qtd"  width="5%">                    
+                    <h:outputText value="#{item.quantdade}"/>                                      
+                </p:column> 
+                <p:column headerText="Valor" width="8%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                  
+                </p:column>
+                <p:column headerText="Desconto" width="7%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor * (item.venda.desconto / 100)}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>                  
+                </p:column>                 
+                <p:column headerText="Custo"  width="7%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.custo}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Lucro"  width="7%">
+                    <h:outputText value="R$ "/>
+                    <h:outputText value="#{item.valor - item.custo - (item.valor * (item.venda.desconto / 100))}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText> 
+                </p:column>
+                <p:column headerText="Porcentual"  width="8%">                                    
+                    <h:outputText value="#{(item.valor - item.custo - (item.valor * (item.venda.desconto / 100))) / item.valor * 100}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                    <h:outputText value=" %"/>
+                </p:column>                 
+            </p:dataTable>
+            <p:blockUI block="frmTabela" trigger="formPesquisa:pesquisa">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </h:form>  
+        <h:form>
+            <center><h:panelGrid columns="6" style="margin-top: 1%">
+                    <p:commandButton value="Somar apurado" actionListener="#{MBItem.somarApurado2()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar custo" actionListener="#{MBItem.somarCusto2()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Somar lucro" actionListener="#{MBItem.somarLucro()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Porcentagem geral" actionListener="#{MBItem.porcentagem()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton value="Quantidade de itens" actionListener="#{MBItem.somarItens()}" update=":msgGlobal" style="background-color:yellowgreen"/>
+                </h:panelGrid></center>
+        </h:form>         
+    </ui:define>
+</ui:composition>
+

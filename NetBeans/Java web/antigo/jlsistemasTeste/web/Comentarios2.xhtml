@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloMaster.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">    
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBComentarioListar.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo"> 
+        <h:form id="frmTabela" style="margin-top:2%;"> 
+            <center> 
+                <h:outputLabel value="Comentários de clientes" style="color:red; font-size:20px;"/>    
+            </center>
+            <p:dataGrid id="tabela" widgetVar="table" value="#{MBComentarioListar.lista}" var="item" columns="1" layout="grid" emptyMessage="Nenhum registro encontrado">
+                <p:panel>
+                    <h:panelGrid columns="1">   
+                        <h:outputText value="#{item.empresa.nome}" style="color: darkgreen"/>
+                        <h:outputText value="#{item.data}" style="color: tomato">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>   
+                        <h:outputText value="#{item.mensagem}" style="color: blue"/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="2"> 
+                        <p:commandButton icon="ui-icon-trash" id="btRemover" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir" title="Remover sistema">
+                            <f:setPropertyActionListener target="#{MBComentario.comentario}" value="#{item}"/>
+                        </p:commandButton>
+                        <p:commandButton icon="ui-icon-pencil" id="btAlterar" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar" title="Alterar sistema">
+                            <f:setPropertyActionListener target="#{MBComentario.comentario}" value="#{item}"/>
+                        </p:commandButton> 
+                        <p:blockUI block="frmTabela" trigger=":frmTabela:tabela:btRemover :frmTabela:tabela:btAlterar">                
+                            <p:graphicImage library="imagens" name="carregar.gif"/>
+                        </p:blockUI>
+                    </h:panelGrid>
+                </p:panel>                  
+            </p:dataGrid>
+        </h:form> 
+
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração de sistema" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Comentário"/>
+                    <p:inputTextarea rows="10" cols="50" value="#{MBComentario.comentario.mensagem}" required="true" requiredMessage="O campo mensagem é obrigatório"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" title="Confirmar alterações" id="editar" actionListener="#{MBComentario.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" title="Cancelar alterações" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form> 
+            <p:blockUI block="frmAlterar" trigger="frmAlterar:editar">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão de sistema" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <p:outputLabel value="Comentário:"/>
+                    <h:outputText value="#{MBComentario.comentario.mensagem}"/>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" title="Confirmar exclusão" id="excluir" actionListener="#{MBComentario.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+            <p:blockUI block="formexcluir" trigger="formexcluir:excluir">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+    </ui:define>    
+</ui:composition>
+
+
+

@@ -1,0 +1,5 @@
+a {
+	background-color: #3A6464;
+	color: white;
+	text-decoration: none;	
+}

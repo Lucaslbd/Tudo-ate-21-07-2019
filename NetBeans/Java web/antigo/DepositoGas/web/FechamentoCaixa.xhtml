@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFechamentoCaixa.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">           
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFechamentoCaixa.lista}" var="item">
+                <f:facet name="header">
+                    <h:outputText value="Fechamento de caixa"/>
+                </f:facet>                 
+                <p:column headerText="Troco">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.troco}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>               
+                <p:column headerText="Dinheiro">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.dinheiro}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>  
+                <p:column headerText="Cartão">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.cartao}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>  
+                <p:column headerText="Cheque">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.cheque}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>  
+                <p:column headerText="Crediario">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.crediario}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>  
+                <p:column headerText="Numero de cartões">
+                    <h:outputText value="#{item.qtdCartao}"/>
+                </p:column>  
+                <p:column headerText="Cancelamento">
+                    <h:outputText value="#{item.cancelamento}"/>
+                </p:column>
+                <p:column headerText="Valor em cancelamento">
+                    <h:outputLabel value="R$ "/>
+                    <h:outputText value="#{item.valor}">
+                        <f:convertNumber pattern="0.00"/>
+                    </h:outputText>
+                </p:column>  
+            </p:dataTable>
+        </h:form>   
+        <center>
+            <h:form id="frm">
+                <h:panelGrid columns="2" style="margin-top:1%">
+                    <p:commandButton id="reinicia" value="Reiniciar caixa" actionListener="#{MBFechamentoCaixa.reiniciar()}" update=":frmTabela:tabela :frm :msgGlobal" style="background-color:yellowgreen"/>
+                    <p:commandButton id="alterar" value="Mudar troco" onclick="PF('dlgTroco').show();" style="background-color:yellowgreen"/>
+                </h:panelGrid>
+                <p:blockUI block="frmTabela:tabela" trigger=":frm:reinicia :frm:alterar">                
+                    <p:graphicImage library="imagens" name="carregar.gif"/>
+                </p:blockUI>
+            </h:form>
+        </center>
+        
+        <p:dialog widgetVar="dlgTroco" id="dlTroco" closable="false" draggable="false" resizable="false" header="Exclusão de registro" modal="true" appendTo="@(body)">
+            <h:form id="frmTroco">                   
+                <h:panelGrid id="pnlTroco" columns="2">        
+                    <h:outputText value="Valor:"/>
+                    <p:inputText value="#{MBFechamentoCaixa.troco}"/>                                        
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Confirmar" title="Confirmar exclusão" id="troco" actionListener="#{MBFechamentoCaixa.mudaTroco()}"  oncomplete="PF('dlgTroco').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :frm :frmTroco :msgGlobal"/>
+                    <p:commandButton value="Cancelar" title="Cancelar exclusão" onclick="PF('dlgTroco').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>   
+            <p:blockUI block="frmTroco" trigger="frmTroco:troco">                
+                <p:graphicImage library="imagens" name="carregar.gif"/>
+            </p:blockUI>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
+

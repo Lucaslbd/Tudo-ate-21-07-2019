@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modelo2.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="metadata">
+        <f:metadata>      
+            <f:viewParam name="acao" value="#{MBPassageiro.acao}"/>  
+            <f:viewParam name="codigo" value="#{MBPassageiro.codigo}"/>  
+            <f:event listener="#{MBPassageiro.carregarCadastro()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define> 
+
+    <ui:define name="conteudo">  
+        <p:toolbar style="margin-bottom: 20px">
+            <f:facet name="left">
+                <p:outputLabel value="Registro de passageiros"/>                
+            </f:facet>
+        </p:toolbar>
+        <h:form id="frmCadastro">            
+            <p:panelGrid columns="1" style="padding: 30px; margin: 20px"> 
+                <h:panelGrid columns="3">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Cliente"/>
+                        <p:selectOneMenu value="#{MBPassageiro.passageiro.cliente.codigo}" filter="true" required="true" requiredMessage="Selecione um cliente">
+                            <f:selectItem itemLabel="Selecione um cliente" itemValue="#{null}"/>
+                            <f:selectItems value="#{MBPassageiro.listaCliente}" var="cliente" itemValue="#{cliente.codigo}" itemLabel="#{cliente.nome}"/>                    
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Titular da reserva"/>
+                        <p:selectOneMenu value="#{MBPassageiro.passageiro.titular}" filter="true" required="true" requiredMessage="Selecione um cliente">
+                            <f:selectItem itemLabel="Selecione o titular da reserva" itemValue="#{null}"/>
+                            <f:selectItems value="#{MBPassageiro.listaCliente}" var="cliente" itemValue="#{cliente.codigo}" itemLabel="#{cliente.nome}"/>                    
+                        </p:selectOneMenu> 
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Grupo"/>
+                        <p:selectOneMenu value="#{MBPassageiro.passageiro.grupo.codigo}" filter="true" required="true" requiredMessage="Selecione um grupo">
+                            <f:selectItem itemLabel="Selecione um grupo" itemValue="#{null}"/>
+                            <f:selectItems value="#{MBPassageiro.listaGrupo}" var="grupo" itemValue="#{grupo.codigo}" itemLabel="#{grupo.nome_grupo}"/>                    
+                        </p:selectOneMenu>   
+                    </h:panelGrid>
+                </h:panelGrid>
+                <h:panelGrid columns="1">
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Local de embarque"/>
+                        <p:inputText value="#{MBPassageiro.passageiro.localEmbarque}" size="40" maxlength="60" placeholder="Local de embarque" required="true" requiredMessage="Preencha o campo local de embarque" autocomplete="off"/>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Valor"/>
+                        <p:inputText value="#{MBPassageiro.passageiro.valor}" size="20" maxlength="5" required="true" requiredMessage="Preencha o campo valor da venda" autocomplete="off" placeholder="Valor da venda" converterMessage="O campo valor da venda somente aceita numeros" validatorMessage="O campo valor da venda não aceita valores menores que 0.00">
+                            <f:validateDoubleRange minimum="0.00"/>
+                             <f:convertNumber pattern="0.00"/>
+                        </p:inputText>  
+                    </h:panelGrid>
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="Status"/>
+                        <p:selectOneMenu value="#{MBPassageiro.passageiro.status}" required="true" requiredMessage="Selecione um status">
+                            <f:selectItem itemLabel="OK" itemValue="OK"/>   
+                            <f:selectItem itemLabel="Não ok" itemValue="Não ok"/>                              
+                        </p:selectOneMenu> 
+                    </h:panelGrid>             
+                    <h:panelGrid columns="5" style="margin-top: 10px">
+                        <p:commandButton value="Salvar" id="salvar" icon="ui-icon-plusthick" actionListener="#{MBPassageiro.salvar()}" update=":msgGlobal" rendered="#{MBPassageiro.acao == 1}"/>
+                        <p:commandButton value="Alterar" icon="ui-icon-pencil" actionListener="#{MBPassageiro.alterar()}" update=":msgGlobal" rendered="#{MBPassageiro.acao == 3}"/>
+                        <p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" outcome="passageiro.xhtml"/>
+                    </h:panelGrid> 
+                </h:panelGrid>
+            </p:panelGrid>   
+            <p:blockUI block="frmCadastro" trigger="frmCadastro:salvar">                
+                <p:graphicImage library="imagens" name="carregar.gif" />                
+            </p:blockUI> 
+        </h:form>
+    </ui:define>    
+</ui:composition>
+

@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+ <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBVenda.carregar()}" type="preRenderView"/>-
+        </f:metadata>
+    </ui:define>
+    
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+    <ui:define name="conteudo">
+        <p:toolbar >
+            <f:facet name="left">
+            <h:outputText value="Pesquisa de vendas"/>
+            </f:facet>
+        </p:toolbar>
+        <h:form>
+            <h:panelGrid columns="5">
+                <p:outputLabel value="Data inicial"/>
+                <p:calendar value="#{MBVenda.filtro.dataInicial}"/>
+                <p:outputLabel value="Data final"/>
+                <p:calendar value="#{MBVenda.filtro.dataFinal}"/>
+                <p:commandButton value="Buscar" actionListener="#{MBVenda.buscar()}" update=":frmTabela:tabela :msgGlobal"/>
+            </h:panelGrid>
+            </h:form> 
+        
+         <h:form id="frmTabela">             
+             <p:dataTable id="tabela" widgetVar="table" value="#{MBVenda.listaVendas}" filteredValue="#{MBVenda.listaVendasFiltradas}" var="item" paginator="true" rows="11" emptyMessage="Nenhum registro encontrado">
+                     
+                <f:facet name="header">
+                    <h:outputText value="Listagem de vendas"/>
+                </f:facet>
+                <p:column headerText="Codigo" width="10%">
+                    <h:outputText value="#{item.codigo}"/>
+                </p:column>
+                <p:column headerText="Horario">
+                    <h:outputText value="#{item.horario}">
+                      <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Valor">
+                    <h:outputText value="#{item.valor}"/>
+                </p:column>
+                 <p:column headerText="Funcionario" filterBy="#{item.funcionarios.nome}">
+                    <h:outputText value="#{item.funcionarios.nome}"/>
+                </p:column> 
+                 <p:column headerText="Opções">
+                     <p:button value="Ver itens" outcome="Itens.xhtml">
+                         <f:param name="codVenda" value="#{item.codigo}"/>
+                     </p:button>
+                </p:column> 
+                <f:facet name="footer">
+                    <h:commandLink>
+                        <p:graphicImage library="imagens" name="excel.png" width="24"/>
+                        <p:dataExporter type="xls" target="tabela" fileName="Vendas" />
+                    </h:commandLink>
+
+                    <h:commandLink>
+                        <p:graphicImage library="imagens" name="pdf.png" width="24" />
+                        <p:dataExporter type="pdf" target="tabela" fileName="Vendas" encoding="ISO-8859-1"/>
+                    </h:commandLink>                  
+                </f:facet> 
+            </p:dataTable>
+        </h:form>
+    </ui:define>     
+
+</ui:composition>
+
+

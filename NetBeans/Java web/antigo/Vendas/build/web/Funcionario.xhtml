@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"     
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/modeloGeral.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event listener="#{MBFuncionario.listar()}"  type="preRenderView"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="menu">
+        <ui:include src="includes/menuPrincipal.xhtml"/>
+    </ui:define>
+
+    <ui:define name="conteudo">       
+        <h:form id="frmTabela">             
+            <p:dataTable id="tabela" widgetVar="table" value="#{MBFuncionario.listaFuncionario}" filteredValue="#{MBFuncionario.listaFuncionarioFiltrados}" var="item" paginator="true" rows="11" emptyMessage="Nenhum registro encontrado">
+                <f:facet name="header">
+                    <h:outputText value="Listagem de funcionarios"/>
+                </f:facet>            
+                <p:column headerText="Codigo" width="10%">
+                    <h:outputText value="#{item.codigo}"/>
+                </p:column>
+                <p:column headerText="Nome" filterBy="#{item.nome}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.nome}"/>
+                </p:column>
+                <p:column headerText="Cpf" width="10%">
+                    <h:outputText value="#{item.cpf}"/>
+                </p:column>
+                <p:column headerText="Email">
+                    <h:outputText value="#{item.email}"/>
+                </p:column>
+                <p:column headerText="Fone" width="10%">
+                    <h:outputText value="#{item.telefone}"/>
+                </p:column>
+                <p:column headerText="Função" width="10%" filterBy="#{item.funcao}" filterStyle="max-width:150px;">
+                    <h:outputText value="#{item.funcao}"/>
+                </p:column>
+                <p:column headerText="Opções" width="10%">
+                    <p:commandButton icon="ui-icon-trash" oncomplete="PF('dlgExcluir').show();" update=":formexcluir:pnlExcluir">
+                        <f:setPropertyActionListener target="#{MBFuncionario.funcionario}" value="#{item}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-pencil" oncomplete="PF('dlgAlterar').show();" update=":frmAlterar:panelAlterar">
+                        <f:setPropertyActionListener target="#{MBFuncionario.funcionario}" value="#{item}"/>
+                    </p:commandButton>                   
+                </p:column>
+            </p:dataTable>
+        </h:form>       
+        <h:form>                     
+            <center><p:commandButton value="Novo" actionListener="#{MBFuncionario.atualizarObjeto()}" style="width:99%; background-color:yellowgreen" oncomplete="PF('dlgNovo').show();" update=":frmNovo:panelNovo"/></center>
+        </h:form>
+        <!--Inicio Formulario Novo-->
+        <p:dialog widgetVar="dlgNovo" closable="false" draggable="false" resizable="false" header="Cadastro de funcionario" modal="true" appendTo="@(body)">
+            <h:form id="frmNovo">
+                <h:panelGrid columns="2" id="panelNovo">
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBFuncionario.funcionario.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Email" for="email"/>
+                    <p:inputText id="email" value="#{MBFuncionario.funcionario.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask mask="999.999.999-99" value="#{MBFuncionario.funcionario.cpf}" id="cpf" size="30" maxlength="15" required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Fone" for="fone"/>
+                    <p:inputMask mask="999 9 9999-9999" value="#{MBFuncionario.funcionario.telefone}" id="fone" size="30" maxlength="15" required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Funcao"/>
+                    <p:selectOneMenu value="#{MBFuncionario.funcionario.funcao}">
+                        <f:selectItem itemLabel="Administrador" itemValue="Administrador"/>
+                        <f:selectItem itemLabel="Gerente" itemValue="Gerente"/>
+                        <f:selectItem itemLabel="Caixa" itemValue="Caixa"/>                        
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Senha" for="senha"/>
+                    <p:password id="senha" value="#{MBFuncionario.funcionario.senha}" size="30"  required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off" maxlength="60"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBFuncionario.salvar()}"  oncomplete="verificar(xhr, status, args, 'dlgNovo','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgNovo').hide();" process="@this">
+                            <p:resetInput target="panelNovo"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Novo-->
+        <!--Inicio Formulario Edição-->
+        <p:dialog widgetVar="dlgAlterar" closable="false" draggable="false" resizable="false" header="Alteração do funcionario" modal="true" appendTo="@(body)">
+            <h:form id="frmAlterar">
+                <h:panelGrid columns="2" id="panelAlterar">
+                    <p:outputLabel value="Codigo" />
+                    <h:outputText value="#{MBFuncionario.funcionario.codigo}"/>
+                    <p:outputLabel value="Nome" for="nome"/>
+                    <p:inputText id="nome" value="#{MBFuncionario.funcionario.nome}" size="30"  required="true" requiredMessage="O campo nome é obrigatorio" autocomplete="off" maxlength="60"/>
+                    <p:outputLabel value="Email" for="email"/>
+                    <p:inputText id="email" value="#{MBFuncionario.funcionario.email}" size="30"  required="true" requiredMessage="O campo email é obrigatorio" autocomplete="off" maxlength="60"/>
+                     <p:outputLabel value="Fone" for="fone"/>
+                     <p:inputMask mask="999 9 9999-9999" value="#{MBFuncionario.funcionario.telefone}" id="fone" size="30" maxlength="15" required="true" requiredMessage="O campo telefone é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Cpf" for="cpf"/>
+                    <p:inputMask mask="999.999.999-99" value="#{MBFuncionario.funcionario.cpf}" id="cpf" size="30" maxlength="15" required="true" requiredMessage="O campo cpf é obrigatorio" autocomplete="off"/>
+                    <p:outputLabel value="Funcao"/>
+                    <p:selectOneMenu value="#{MBFuncionario.funcionario.funcao}"  style="">
+                        <f:selectItem itemLabel="Administrador" itemValue="Administrador"/>
+                        <f:selectItem itemLabel="Gerente" itemValue="Gerente"/>
+                        <f:selectItem itemLabel="Caixa" itemValue="Caixa"/>                        
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Senha" for="senha"/>
+                    <p:password id="senha" value="#{MBFuncionario.funcionario.senha}" size="30"  required="true" requiredMessage="O campo senha é obrigatorio" autocomplete="off" maxlength="60"/>
+                </h:panelGrid>  
+                <center><h:panelGrid columns="2">
+                        <p:commandButton value="Salvar" actionListener="#{MBFuncionario.alterar()}"  oncomplete="verificar(xhr, status, args, 'dlgAlterar','table' )" update=":frmTabela:tabela :msgGlobal"/>
+                        <p:commandButton value="Cancelar" onclick="PF('dlgAlterar').hide();" process="@this">
+                            <p:resetInput target="panelAlterar"/>
+                        </p:commandButton>
+                    </h:panelGrid></center>
+            </h:form>            
+        </p:dialog>
+        <!--Final formulario Edição-->
+        <!--Inicio formulario excluir-->
+        <p:dialog widgetVar="dlgExcluir" closable="false" draggable="false" resizable="false" header="Exclusão do funcionario" modal="true" appendTo="@(body)">
+            <h:form id="formexcluir">
+                <h:panelGrid id="pnlExcluir" columns="2">
+                    <h:outputText value="Codigo:"/>
+                    <h:outputText value="#{MBFuncionario.funcionario.codigo}" />
+                    <h:outputText value="Descrição"/>
+                    <h:outputText value="#{MBFuncionario.funcionario.nome}" />
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Excluir" actionListener="#{MBFuncionario.excluir()}"  oncomplete="PF('dlgExcluir').hide(); PF('table').clearFilters();" update=":frmTabela:tabela :msgGlobal"/>
+                    <p:commandButton value="Cancelar" onclick="PF('dlgExcluir').hide();" process="@this"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        <!--Final formulario excluir-->        
+    </ui:define>     
+
+</ui:composition>
+
