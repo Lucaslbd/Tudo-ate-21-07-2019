@@ -15,7 +15,7 @@ public class ConexaoBD {
    private final String driver="org.postgresql.Driver"; // identifica o serviço é o padrao do postgre  
    private final String caminho ="jdbc:postgresql://localhost:5432/agenciaviagens";
    private final String usuario ="postgres";
-   private final String senha ="14811409lbd"; // senha do banco de dados
+   private final String senha =""; // senha do banco de dados
    public Connection con; // faz a conexao
    
 
